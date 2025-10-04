@@ -4,6 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, TrendingUp, Users, CheckCircle2, Rocket, Lock, Upload } from "lucide-react";
+import { useNavigate } from "react-router-dom"; // Ensure this is imported for the redirect button
+
 
 interface FormData {
   companyName: string;
@@ -26,6 +28,7 @@ interface Benefit {
 }
 
 const Register: React.FC = () => {
+  const navigate = useNavigate(); // Initialize useNavigate
   const [formData, setFormData] = useState<FormData>({
     companyName: "",
     aboutStartup: "",
@@ -119,26 +122,36 @@ const Register: React.FC = () => {
       return;
     }
 
-    const formPayload = new FormData();
-    Object.entries(formData).forEach(([key, value]) => {
-      if (value !== null && value !== "") {
-        formPayload.append(key, value as string | Blob);
-      }
-    });
-
+    // --- LOCALSTORAGE IMPLEMENTATION START ---
     try {
-      const response = await fetch(
-        "https://backend-new-originn.vercel.app/api/startups/register",
-        {
-          method: "POST",
-          body: formPayload,
-        }
-      );
+      // 1. Define the user data to store
+      const userData = {
+        email: formData.founderEmail,
+        // The required password for login
+        password: "jeet123@", 
+        companyName: formData.companyName,
+        // Store all other form data excluding the file (File objects can't be stored directly)
+        ...Object.fromEntries(
+            Object.entries(formData).filter(([key, value]) => key !== 'pitchDeck')
+        ),
+      };
 
-      const result = await response.json();
-      if (response.ok) {
-        setSubmitted(true);
-        setFormData({
+      // 2. Save the data to localStorage
+      // We will use the email as the key for simple retrieval
+      localStorage.setItem(formData.founderEmail, JSON.stringify(userData));
+      
+      // Also save a list of registered emails for easier checking
+      const registeredEmails = JSON.parse(localStorage.getItem('registeredEmails') || '[]');
+      if (!registeredEmails.includes(formData.founderEmail)) {
+          registeredEmails.push(formData.founderEmail);
+          localStorage.setItem('registeredEmails', JSON.stringify(registeredEmails));
+      }
+
+
+      // 3. Handle success
+      setSubmitted(true);
+      // Clear form data for appearance of successful submission
+      setFormData({
           companyName: "",
           aboutStartup: "",
           companyWebsite: "",
@@ -150,16 +163,20 @@ const Register: React.FC = () => {
           teamMembers: "",
           stage: "Idea",
           address: "",
-        });
-        setFileError("");
-        setTimeout(() => setSubmitted(false), 2000);
-      } else {
-        alert(result.message || "Failed to submit form. Please try again.");
-      }
+      });
+      setFileError("");
+
+      // Redirect to login page after a short delay
+      setTimeout(() => {
+          setSubmitted(false);
+          navigate("/"); 
+      }, 1500);
+
     } catch (err) {
       console.error(err);
-      alert("Something went wrong! Check console for details.");
+      alert("Something went wrong with registration!");
     }
+    // --- LOCALSTORAGE IMPLEMENTATION END ---
   };
 
   return (
@@ -203,7 +220,7 @@ const Register: React.FC = () => {
           <CardContent>
             {submitted && (
               <div className="bg-green-100 text-green-800 border border-green-300 px-4 py-2 rounded-lg mb-4 text-center font-medium">
-                Form submitted successfully!
+                Registration Successful! Redirecting to Login...
               </div>
             )}
 
@@ -374,6 +391,18 @@ const Register: React.FC = () => {
                 Register Startup
               </Button>
             </form>
+            
+            {/* ADDED LOGIN BUTTON HERE */}
+            <p className="text-center text-sm text-muted-foreground mt-4">
+                Already have an account?{' '}
+                <Button
+                    variant="link"
+                    className="p-0 h-auto text-accent hover:text-accent-foreground"
+                    onClick={() => navigate("/")}
+                >
+                    Login
+                </Button>
+            </p>
           </CardContent>
         </Card>
       </div>

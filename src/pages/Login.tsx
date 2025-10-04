@@ -1,19 +1,24 @@
-import { useState } from "react";
+import { useState, FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, TrendingUp, Users, CheckCircle2, Rocket, Lock } from "lucide-react";
-// const navigate = useNavigate();
 
 
 const Login = () => {
   const [activeTab, setActiveTab] = useState("login");
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+
+  // New state for login form
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const benefits = [
+    // ... (benefits array remains the same)
     {
       icon: Shield,
       title: "Trust-as-a-Service",
@@ -46,12 +51,42 @@ const Login = () => {
     }
   ];
 
+  // --- LOGIN LOGIC START ---
+  const handleLogin = (e: FormEvent) => {
+    e.preventDefault();
+    setError(""); // Clear previous errors
+
+    // 1. Retrieve the user data from localStorage using the entered email
+    const userDataJSON = localStorage.getItem(email);
+
+    if (!userDataJSON) {
+      setError("Email not registered. Please register first.");
+      return;
+    }
+
+    const userData = JSON.parse(userDataJSON);
+
+    // 2. Check password
+    // The required password is 'jeet123@'
+    if (password === "jeet123@" && userData.password === "jeet123@") {
+      // 3. Successful Login: Set a flag in localStorage or session for active session
+      localStorage.setItem("isLoggedIn", "true"); 
+      localStorage.setItem("currentUserEmail", email); 
+      
+      // 4. Redirect to the dashboard
+      navigate("/dashboard");
+    } else {
+      setError("Invalid password.");
+    }
+  };
+  // --- LOGIN LOGIC END ---
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary via-primary to-secondary">
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-8 md:py-12">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-          {/* Left: Content */}
+          {/* Left: Content (Unchanged) */}
           <div className="text-white space-y-6">
             <div className="inline-block px-4 py-2 bg-accent/20 rounded-full border border-accent/30 backdrop-blur-sm">
               <span className="text-accent text-sm font-semibold">India's Premier Startup Launch Platform</span>
@@ -83,69 +118,84 @@ const Login = () => {
             </div>
           </div>
 
-          {/* Right: Auth Card */}
+          {/* Right: Auth Card (Modified) */}
           <Card className="shadow-2xl border-border/50 backdrop-blur-sm bg-card/95">
-  <CardHeader>
-    <CardTitle className="text-2xl">Sign In</CardTitle>
-    <CardDescription>Access your Originn account</CardDescription>
-  </CardHeader>
-  <CardContent>
-    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-      {/* Only Login Tab */}
+ <CardHeader>
+   <CardTitle className="text-2xl">Sign In</CardTitle>
+   <CardDescription>Access your Originn account</CardDescription>
+ </CardHeader>
+ <CardContent>
+   <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+     {/* Login Form */}
+     <TabsContent value="login" className="space-y-4">
+       <form onSubmit={handleLogin} className="space-y-4">
+         <div className="space-y-2">
+           <Label htmlFor="login-email">Email</Label>
+           <Input
+             id="login-email"
+             type="email"
+             placeholder="you@startup.com"
+             className="h-11"
+             value={email}
+             onChange={(e) => setEmail(e.target.value)}
+             required
+           />
+         </div>
+         <div className="space-y-2">
+           <Label htmlFor="login-password">Password</Label>
+           <Input
+             id="login-password"
+             type="password"
+             className="h-11"
+             value={password}
+             onChange={(e) => setPassword(e.target.value)}
+             required
+           />
+         </div>
+         {/* Error Message */}
+         {error && (
+            <p className="text-sm text-red-500 text-center">{error}</p>
+          )}
 
-
-      <TabsContent value="login" className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="login-email">Email</Label>
-          <Input
-            id="login-email"
-            type="email"
-            placeholder="you@startup.com"
-            className="h-11"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="login-password">Password</Label>
-          <Input id="login-password" type="password" className="h-11" />
-        </div>
-        <Button className="w-full h-11 text-base font-semibold">
-          Sign In
-        </Button>
-        <p className="text-center text-sm text-muted-foreground">
-          <a href="#" className="text-accent hover:underline">
-            Forgot password?
-          </a>
-        </p>
-      </TabsContent>
-    </Tabs>
-  </CardContent>
+         <Button type="submit" className="w-full h-11 text-base font-semibold">
+           Sign In
+         </Button>
+       </form>
+       
+       <p className="text-center text-sm text-muted-foreground mt-4">
+         <a href="#" className="text-accent hover:underline">
+           Forgot password?
+         </a>
+       </p>
+       
+       {/* ADDED REGISTRATION LINK HERE */}
+       <div className="mt-4 pt-4 border-t border-border">
+           <p className="text-center text-sm text-muted-foreground">
+             Don't have an account?{' '}
+             <Button
+               variant="link"
+               className="p-0 h-auto text-accent hover:text-accent/80 font-semibold"
+               onClick={() => navigate("/register")}
+             >
+               Register Your Startup
+             </Button>
+           </p>
+       </div>
+       
+     </TabsContent>
+   </Tabs>
+ </CardContent>
 </Card>
 
         </div>
       </div>
 
-      <div className="relative py-8 bg-gradient-to-b from-secondary to-primary">
-        <div className="container mx-auto px-4">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t-2 border-white/30"></div>
-            </div>
-            <div className="relative flex justify-center">
-              <span className="bg-secondary px-6 py-2 text-white/60 text-sm font-semibold tracking-wider">
-                GET STARTED
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer CTA */}
+      {/* The rest of the component (Footer CTA, Benefits Section, About Section) remains unchanged. */}
+      
+      {/* Footer CTA (This button is redundant now but kept for completeness of the original code) */}
       <div className="bg-gradient-to-b from-primary to-secondary py-16 text-white">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Launch Your Startup On Originn</h2>
-          {/* <p className="text-xl mb-8 text-primary-foreground/90">
-            Join India's most promising startups on Originn today
-          </p> */}
           <Button
         size="xl"
         className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-8 h-12 text-lg"
@@ -156,7 +206,7 @@ const Login = () => {
 
         </div>
       </div>
-
+      
       {/* Section Divider */}
       <div className="relative py-8 bg-gradient-to-b from-secondary to-primary">
         <div className="container mx-auto px-4">
@@ -165,7 +215,7 @@ const Login = () => {
               <div className="w-full border-t-2 border-white/30"></div>
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-primary px-6 py-2 text-white/60 text-sm font-semibold tracking-wider">
+              <span className="bg-secondary px-6 py-2 text-white/60 text-sm font-semibold tracking-wider">
                 OUR JOURNEY
               </span>
             </div>
