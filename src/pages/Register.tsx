@@ -2,10 +2,19 @@ import React, { useState, ChangeEvent, FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Shield, TrendingUp, Users, CheckCircle2, Rocket, Lock, Upload } from "lucide-react";
-import { useNavigate } from "react-router-dom"; // Ensure this is imported for the redirect button
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
 
+const API_URL =
+  import.meta.env.MODE === "development"
+    ? "http://localhost:5000"
+    : "https://backend-new-originn.vercel.app";
 
 interface FormData {
   companyName: string;
@@ -15,20 +24,14 @@ interface FormData {
   founderEmail: string;
   phone: string;
   instituteName: string;
-  pitchDeck: File | null;
-  teamMembers: string;
+  pitchDeckLink: string; // Changed from File to link
+  teamMembers: number;
   stage: string;
   address: string;
 }
 
-interface Benefit {
-  icon: React.ComponentType<{ className?: string }>;
-  title: string;
-  description: string;
-}
-
 const Register: React.FC = () => {
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({
     companyName: "",
     aboutStartup: "",
@@ -37,182 +40,108 @@ const Register: React.FC = () => {
     founderEmail: "",
     phone: "",
     instituteName: "",
-    pitchDeck: null,
-    teamMembers: "",
+    pitchDeckLink: "",
+    teamMembers: 0,
     stage: "Idea",
     address: "",
   });
 
   const [submitted, setSubmitted] = useState<boolean>(false);
-  const [fileError, setFileError] = useState<string>("");
+  const [error, setError] = useState<string>("");
 
-  const benefits: Benefit[] = [
-    {
-      icon: Shield,
-      title: "Trust-as-a-Service",
-      description: "RBI-regulated digital escrow protects every pre-order, building confidence with your backers."
-    },
-    {
-      icon: TrendingUp,
-      title: "Market Validation",
-      description: "Generate verified traction data that proves product-market fit to investors and stakeholders."
-    },
-    {
-      icon: Users,
-      title: "Early Adopter Community",
-      description: "Access enthusiastic customers eager to discover India's next big innovation before anyone else."
-    },
-    {
-      icon: Rocket,
-      title: "Milestone-Based Funding",
-      description: "Receive working capital in structured tranches as you hit verified production milestones."
-    },
-    {
-      icon: Lock,
-      title: "Investor Bridge",
-      description: "Successful campaigns unlock access to our exclusive network of accredited investors."
-    },
-    {
-      icon: CheckCircle2,
-      title: "Rich Product Showcase",
-      description: "Create immersive pages with HD videos, 360° views, and high-res imagery to overcome the touch barrier."
-    }
-  ];
-
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const target = e.target as HTMLInputElement;
-    const { name, value, files } = target;
-    
-    if (files && files.length > 0) {
-      const file = files[0];
-      
-      // Validate file for pitch deck
-      if (name === "pitchDeck") {
-        const maxSize = 10 * 1024 * 1024; // 10MB
-        const allowedTypes = [
-          "application/pdf",
-          "application/vnd.ms-powerpoint",
-          "application/vnd.openxmlformats-officedocument.presentationml.presentation"
-        ];
-        
-        if (file.size > maxSize) {
-          setFileError("File size must be less than 10MB");
-          return;
-        }
-        
-        if (!allowedTypes.includes(file.type)) {
-          setFileError("Only PDF, PPT, and PPTX files are allowed");
-          return;
-        }
-        
-        setFileError("");
-      }
-      
-      setFormData((prev) => ({ ...prev, [name]: file }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (fileError) {
-      alert("Please fix file errors before submitting");
-      return;
-    }
-
-    // --- LOCALSTORAGE IMPLEMENTATION START ---
     try {
-      // 1. Define the user data to store
-      const userData = {
-        email: formData.founderEmail,
-        // The required password for login
-        password: "jeet123@", 
+      // Determine API URL based on environment
+      const payload = {
         companyName: formData.companyName,
-        // Store all other form data excluding the file (File objects can't be stored directly)
-        ...Object.fromEntries(
-            Object.entries(formData).filter(([key, value]) => key !== 'pitchDeck')
-        ),
+        about: formData.aboutStartup, // map frontend name to backend
+        companyWebsite: formData.companyWebsite,
+        founderTitle: "Mr", // or add dropdown in form
+        founderName: formData.founderName,
+        founderMail: formData.founderEmail,
+   founderPhone: formData.phone || "N/A",
+
+        instituteName: formData.instituteName || "N/A", // required in schema
+        pitchDeckPath: formData.pitchDeckLink,
+        teamMembers: formData.teamMembers ? Number(formData.teamMembers) : 0,
+        stage: formData.stage,
+        address: formData.address || "N/A",
       };
 
-      // 2. Save the data to localStorage
-      // We will use the email as the key for simple retrieval
-      localStorage.setItem(formData.founderEmail, JSON.stringify(userData));
-      
-      // Also save a list of registered emails for easier checking
-      const registeredEmails = JSON.parse(localStorage.getItem('registeredEmails') || '[]');
-      if (!registeredEmails.includes(formData.founderEmail)) {
-          registeredEmails.push(formData.founderEmail);
-          localStorage.setItem('registeredEmails', JSON.stringify(registeredEmails));
+      const response = await fetch(`${API_URL}/api/startups/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify(payload),
+      });
+
+      console.log("res", response);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Registration failed");
       }
 
-
-      // 3. Handle success
       setSubmitted(true);
-      // Clear form data for appearance of successful submission
+      setError("");
+
+      // Clear form
       setFormData({
-          companyName: "",
-          aboutStartup: "",
-          companyWebsite: "",
-          founderName: "",
-          founderEmail: "",
-          phone: "",
-          instituteName: "",
-          pitchDeck: null,
-          teamMembers: "",
-          stage: "Idea",
-          address: "",
+        companyName: "",
+        aboutStartup: "",
+        companyWebsite: "",
+        founderName: "",
+        founderEmail: "",
+        phone: "",
+        instituteName: "",
+        pitchDeckLink: "",
+        teamMembers: 0,
+        stage: "Idea",
+        address: "",
       });
-      setFileError("");
 
-      // Redirect to login page after a short delay
+      // Redirect after success
       setTimeout(() => {
-          setSubmitted(false);
-          navigate("/"); 
+        setSubmitted(false);
+        navigate("/");
       }, 1500);
-
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("Something went wrong with registration!");
+      setError(err.message || "Something went wrong");
     }
-    // --- LOCALSTORAGE IMPLEMENTATION END ---
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary via-primary to-secondary flex items-center">
-  <div className="container mx-auto px-4 py-8 md:py-12 grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
-    {/* Left Hero */}
-    <div className="text-white space-y-6 flex flex-col justify-center lg:justify-start pt-4 lg:pt-0">
-      <div className="inline-block px-4 py-2 bg-accent/20 rounded-full border border-accent/30 backdrop-blur-sm">
-        <span className="text-accent text-sm font-semibold">India's Premier Startup Launch Platform</span>
-      </div>
-      <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-        Launch India's Next Big Thing
-      </h1>
-      <p className="text-lg sm:text-xl text-primary-foreground/80 leading-relaxed">
-        Originn is more than a marketplace—it's a curated ecosystem designed to showcase India's most promising ventures.
-      </p>
-      <div className="grid grid-cols-3 gap-6 pt-4">
-        <div>
-          <div className="text-3xl font-bold text-accent">₹0</div>
-          <div className="text-sm text-primary-foreground/70">Platform Fee</div>
+      <div className="container mx-auto px-4 py-8 md:py-12 grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+        {/* Left Hero */}
+        <div className="text-white space-y-6 flex flex-col justify-center lg:justify-start pt-4 lg:pt-0">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+            Launch India's Next Big Thing
+          </h1>
+          <p className="text-lg sm:text-xl text-primary-foreground/80 leading-relaxed">
+            Originn is more than a marketplace—it's a curated ecosystem designed
+            to showcase India's most promising ventures.
+          </p>
         </div>
-        <div>
-          <div className="text-3xl font-bold text-success">100%</div>
-          <div className="text-sm text-primary-foreground/70">Escrow Protected</div>
-        </div>
-        <div>
-          <div className="text-3xl font-bold text-accent">24/7</div>
-          <div className="text-sm text-primary-foreground/70">Support</div>
-        </div>
-      </div>
-    </div>
 
         {/* Right Card */}
         <Card className="shadow-3xl border-border/50 backdrop-blur-sm bg-card/95">
           <CardHeader>
-            <CardTitle className="text-5xl text-center">Register Your Startup</CardTitle>
+            <CardTitle className="text-5xl text-center">
+              Register Your Startup
+            </CardTitle>
             <CardDescription className="text-center">
               Fill in the details below to join Originn
             </CardDescription>
@@ -221,6 +150,11 @@ const Register: React.FC = () => {
             {submitted && (
               <div className="bg-green-100 text-green-800 border border-green-300 px-4 py-2 rounded-lg mb-4 text-center font-medium">
                 Registration Successful! Redirecting to Login...
+              </div>
+            )}
+            {error && (
+              <div className="bg-red-100 text-red-800 border border-red-300 px-4 py-2 rounded-lg mb-4 text-center font-medium">
+                {error}
               </div>
             )}
 
@@ -347,31 +281,15 @@ const Register: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="pitchDeck">Pitch Deck</Label>
-                <div className="relative">
-                  <Input
-                    type="file"
-                    id="pitchDeck"
-                    name="pitchDeck"
-                    onChange={handleChange}
-                    accept=".pdf,.ppt,.pptx"
-                    className="cursor-pointer"
-                  />
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                    <Upload className="w-5 h-5 text-gray-400" />
-                  </div>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  PDF, PPT, or PPTX (Max 10MB)
-                </p>
-                {fileError && (
-                  <p className="text-xs text-red-600">{fileError}</p>
-                )}
-                {formData.pitchDeck && !fileError && (
-                  <p className="text-xs text-green-600">
-                    ✓ {formData.pitchDeck.name}
-                  </p>
-                )}
+                <Label htmlFor="pitchDeckLink">Pitch Deck Link</Label>
+                <Input
+                  type="url"
+                  id="pitchDeckLink"
+                  name="pitchDeckLink"
+                  value={formData.pitchDeckLink}
+                  onChange={handleChange}
+                  placeholder="https://drive.google.com/your-pitch-deck"
+                />
               </div>
 
               <div className="space-y-2">
@@ -387,28 +305,28 @@ const Register: React.FC = () => {
                 />
               </div>
 
-              <Button type="submit" className="w-full h-12 text-lg font-semibold bg-accent hover:bg-accent/90 text-white">
+              <Button
+                type="submit"
+                className="w-full h-12 text-lg font-semibold bg-accent hover:bg-accent/90 text-white"
+              >
                 Register Startup
               </Button>
             </form>
-            
-            {/* ADDED LOGIN BUTTON HERE */}
+
             <p className="text-center text-sm text-muted-foreground mt-4">
-                Already have an account?{' '}
-                <Button
-                    variant="link"
-                    className="p-0 h-auto text-accent hover:text-accent-foreground"
-                    onClick={() => navigate("/")}
-                >
-                    Login
-                </Button>
+              Already have an account?{" "}
+              <Button
+                variant="link"
+                className="p-0 h-auto text-accent hover:text-accent-foreground"
+                onClick={() => navigate("/")}
+              >
+                Login
+              </Button>
             </p>
           </CardContent>
         </Card>
       </div>
-      
     </div>
-
   );
 };
 
