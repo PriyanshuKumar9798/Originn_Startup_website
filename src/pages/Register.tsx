@@ -24,7 +24,6 @@ interface FormData {
   founderEmail: string;
   phone: string;
   instituteName: string;
-  pitchDeckLink: string; // Changed from File to link
   teamMembers: number;
   stage: string;
   address: string;
@@ -40,12 +39,13 @@ const Register: React.FC = () => {
     founderEmail: "",
     phone: "",
     instituteName: "",
-    pitchDeckLink: "",
     teamMembers: 0,
     stage: "Idea",
     address: "",
   });
 
+  const [pitchDeckImages, setPitchDeckImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
@@ -56,37 +56,45 @@ const Register: React.FC = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const files = Array.from(e.target.files);
+    setPitchDeckImages(files);
+
+    // Create preview URLs
+    const urls = files.map((file) => URL.createObjectURL(file));
+    setImagePreviews(urls);
+  };
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
-      // Determine API URL based on environment
-      const payload = {
-        companyName: formData.companyName,
-        about: formData.aboutStartup, // map frontend name to backend
-        companyWebsite: formData.companyWebsite,
-        founderTitle: "Mr", // or add dropdown in form
-        founderName: formData.founderName,
-        founderMail: formData.founderEmail,
-   founderPhone: formData.phone || "N/A",
+      const formPayload = new FormData();
+      formPayload.append("companyName", formData.companyName);
+      formPayload.append("about", formData.aboutStartup);
+      formPayload.append("companyWebsite", formData.companyWebsite);
+      formPayload.append("founderTitle", "Mr");
+      formPayload.append("founderName", formData.founderName);
+      formPayload.append("founderMail", formData.founderEmail);
+      formPayload.append("founderPhone", formData.phone || "N/A");
+      formPayload.append("instituteName", formData.instituteName || "N/A");
+      formPayload.append(
+        "teamMembers",
+        String(formData.teamMembers || 0)
+      );
+      formPayload.append("stage", formData.stage);
+      formPayload.append("address", formData.address || "N/A");
 
-        instituteName: formData.instituteName || "N/A", // required in schema
-        pitchDeckPath: formData.pitchDeckLink,
-        teamMembers: formData.teamMembers ? Number(formData.teamMembers) : 0,
-        stage: formData.stage,
-        address: formData.address || "N/A",
-      };
+      // Append images
+      pitchDeckImages.forEach((file) => {
+        formPayload.append("pitchDeckImages", file);
+      });
 
       const response = await fetch(`${API_URL}/api/startups/register`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-
-        body: JSON.stringify(payload),
+        body: formPayload,
       });
-
-      console.log("res", response);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -96,7 +104,7 @@ const Register: React.FC = () => {
       setSubmitted(true);
       setError("");
 
-      // Clear form
+      // Reset form
       setFormData({
         companyName: "",
         aboutStartup: "",
@@ -105,13 +113,14 @@ const Register: React.FC = () => {
         founderEmail: "",
         phone: "",
         instituteName: "",
-        pitchDeckLink: "",
         teamMembers: 0,
         stage: "Idea",
         address: "",
       });
+      setPitchDeckImages([]);
+      setImagePreviews([]);
 
-      // Redirect after success
+      // Redirect
       setTimeout(() => {
         setSubmitted(false);
         navigate("/");
@@ -159,6 +168,7 @@ const Register: React.FC = () => {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Company Name */}
               <div className="space-y-2">
                 <Label htmlFor="companyName">Company Name *</Label>
                 <Input
@@ -172,6 +182,7 @@ const Register: React.FC = () => {
                 />
               </div>
 
+              {/* About */}
               <div className="space-y-2">
                 <Label htmlFor="aboutStartup">About Startup *</Label>
                 <textarea
@@ -186,6 +197,7 @@ const Register: React.FC = () => {
                 />
               </div>
 
+              {/* Founder Info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="founderName">Founder Name *</Label>
@@ -213,6 +225,7 @@ const Register: React.FC = () => {
                 </div>
               </div>
 
+              {/* Company Website */}
               <div className="space-y-2">
                 <Label htmlFor="companyWebsite">Company Website</Label>
                 <Input
@@ -225,6 +238,7 @@ const Register: React.FC = () => {
                 />
               </div>
 
+              {/* Phone + Institute */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone</Label>
@@ -250,6 +264,7 @@ const Register: React.FC = () => {
                 </div>
               </div>
 
+              {/* Stage + Team Members */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="stage">Stage *</Label>
@@ -280,18 +295,37 @@ const Register: React.FC = () => {
                 </div>
               </div>
 
+              {/* Pitch Deck Upload */}
               <div className="space-y-2">
-                <Label htmlFor="pitchDeckLink">Pitch Deck Link</Label>
+                <Label htmlFor="pitchDeckImages">Pitch Deck (Images)</Label>
                 <Input
-                  type="url"
-                  id="pitchDeckLink"
-                  name="pitchDeckLink"
-                  value={formData.pitchDeckLink}
-                  onChange={handleChange}
-                  placeholder="https://drive.google.com/your-pitch-deck"
+                  type="file"
+                  id="pitchDeckImages"
+                  name="pitchDeckImages"
+                  accept="image/*"
+                  multiple
+                  onChange={handleImageChange}
                 />
+                <p className="text-xs text-muted-foreground">
+                  Upload one or more images of your pitch deck (JPG, PNG).
+                </p>
+
+                {imagePreviews.length > 0 && (
+                  <div className="grid grid-cols-3 gap-2 mt-2">
+                    {imagePreviews.map((src, i) => (
+                      <div key={i} className="border rounded-lg overflow-hidden">
+                        <img
+                          src={src}
+                          alt={`pitch-preview-${i}`}
+                          className="w-full h-28 object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
+              {/* Address */}
               <div className="space-y-2">
                 <Label htmlFor="address">Address</Label>
                 <textarea
@@ -331,3 +365,4 @@ const Register: React.FC = () => {
 };
 
 export default Register;
+
