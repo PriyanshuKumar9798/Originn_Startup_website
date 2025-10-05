@@ -5,7 +5,10 @@ import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Shield, TrendingUp, Users, CheckCircle2, Rocket, Lock } from "lucide-react";
+import { Shield, TrendingUp, Users, CheckCircle2, Rocket, Lock, Eye, EyeOff } from "lucide-react"; 
+import { ArrowLeft } from "lucide-react"; 
+
+const ORIGINN_MAIN_PAGE_URL = "https://originn-main-website.vercel.app/";
 
 
 const Login = () => {
@@ -16,9 +19,10 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  // NEW STATE: To toggle password visibility
+  const [showPassword, setShowPassword] = useState(false); 
 
   const benefits = [
-    // ... (benefits array remains the same)
     {
       icon: Shield,
       title: "Trust-as-a-Service",
@@ -85,8 +89,20 @@ const Login = () => {
     <div className="min-h-screen bg-gradient-to-b from-primary via-primary to-secondary">
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-8 md:py-12">
+        
+        {/* NEW MAIN HEADING */}
+        <div className="text-center mb-10 lg:mb-16">
+            <h2 className="text-3xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-accent shadow-lg inline-block pb-1">
+                Originn Startup Portal
+            </h2>
+            <p className="text-lg text-primary-foreground/80 mt-2">
+                Access your launchpad for India's next big innovation.
+            </p>
+        </div>
+        {/* END NEW MAIN HEADING */}
+
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-          {/* Left: Content (Unchanged) */}
+          {/* Left: Content */}
           <div className="text-white space-y-6">
             <div className="inline-block px-4 py-2 bg-accent/20 rounded-full border border-accent/30 backdrop-blur-sm">
               <span className="text-accent text-sm font-semibold">India's Premier Startup Launch Platform</span>
@@ -118,92 +134,122 @@ const Login = () => {
             </div>
           </div>
 
-          {/* Right: Auth Card (Modified) */}
-          <Card className="shadow-2xl border-border/50 backdrop-blur-sm bg-card/95">
- <CardHeader>
-   <CardTitle className="text-2xl">Sign In</CardTitle>
-   <CardDescription>Access your Originn account</CardDescription>
- </CardHeader>
- <CardContent>
-   <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-     {/* Login Form */}
-     <TabsContent value="login" className="space-y-4">
-       <form onSubmit={handleLogin} className="space-y-4">
-         <div className="space-y-2">
-           <Label htmlFor="login-email">Email</Label>
-           <Input
-             id="login-email"
-             type="email"
-             placeholder="you@startup.com"
-             className="h-11"
-             value={email}
-             onChange={(e) => setEmail(e.target.value)}
-             required
-           />
-         </div>
-         <div className="space-y-2">
-           <Label htmlFor="login-password">Password</Label>
-           <Input
-             id="login-password"
-             type="password"
-             className="h-11"
-             value={password}
-             onChange={(e) => setPassword(e.target.value)}
-             required
-           />
-         </div>
-         {/* Error Message */}
-         {error && (
-            <p className="text-sm text-red-500 text-center">{error}</p>
-          )}
+          {/* Right: Auth Card */}
+          <div className="space-y-6 max-w-md w-full mx-auto lg:max-w-none">
+             {/* Go to Originn Main Page Button */}
+             <div className="text-center">
+               <Button
+                  variant="outline"
+                  size="lg"
+                  className="bg-gradient-to-r from-accent/10 to-accent/5 backdrop-blur-sm text-accent border-accent/30 hover:bg-accent/20 hover:border-accent/50 font-semibold shadow-lg hover:shadow-accent/20 transition-all duration-300 group"
+                  onClick={() => window.open(ORIGINN_MAIN_PAGE_URL, "_blank")}
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4 group-hover:-translate-x-1 transition-transform" /> 
+                  Go to Originn Main Page
+                </Button>
+                <p className="text-xs text-primary-foreground/60 mt-2">
+                  Visit our main website to learn more
+                </p>
+             </div>
+            
+            <Card className="shadow-2xl border-border/50 backdrop-blur-sm bg-card/95">
+              <CardHeader>
+                <CardTitle className="text-2xl">Sign In</CardTitle>
+                <CardDescription>Access your Originn account</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                  {/* Login Form */}
+                  <TabsContent value="login" className="space-y-4">
+                    <form onSubmit={handleLogin} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="login-email">Email</Label>
+                        <Input
+                          id="login-email"
+                          type="email"
+                          placeholder="you@startup.com"
+                          className="h-11"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                        />
+                      </div>
+                      {/* PASSWORD INPUT WITH TOGGLE */}
+                      <div className="space-y-2">
+                        <Label htmlFor="login-password">Password</Label>
+                        <div className="relative">
+                          <Input
+                            id="login-password"
+                            type={showPassword ? "text" : "password"}
+                            className="h-11 pr-10"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword((prev) => !prev)}
+                            className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground/80 transition-colors"
+                            aria-label={showPassword ? "Hide password" : "Show password"}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-5 w-5" />
+                            ) : (
+                              <Eye className="h-5 w-5" />
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                      {/* Error Message */}
+                      {error && (
+                          <p className="text-sm text-red-500 text-center">{error}</p>
+                        )}
 
-         <Button type="submit" className="w-full h-11 text-base font-semibold">
-           Sign In
-         </Button>
-       </form>
-       
-       <p className="text-center text-sm text-muted-foreground mt-4">
-         <a href="#" className="text-accent hover:underline">
-           Forgot password?
-         </a>
-       </p>
-       
-       {/* ADDED REGISTRATION LINK HERE */}
-       <div className="mt-4 pt-4 border-t border-border">
-           <p className="text-center text-sm text-muted-foreground">
-             Don't have an account?{' '}
-             <Button
-               variant="link"
-               className="p-0 h-auto text-accent hover:text-accent/80 font-semibold"
-               onClick={() => navigate("/register")}
-             >
-               Register Your Startup
-             </Button>
-           </p>
-       </div>
-       
-     </TabsContent>
-   </Tabs>
- </CardContent>
-</Card>
+                      <Button type="submit" className="w-full h-11 text-base font-semibold">
+                        Sign In
+                      </Button>
+                    </form>
+                    
+                    <p className="text-center text-sm text-muted-foreground mt-4">
+                      <a href="#" className="text-accent hover:underline">
+                        Forgot password?
+                      </a>
+                    </p>
+                    
+                    {/* REGISTRATION LINK */}
+                    <div className="mt-4 pt-4 border-t border-border">
+                        <p className="text-center text-sm text-muted-foreground">
+                          Don't have an account?{' '}
+                          <Button
+                            variant="link"
+                            className="p-0 h-auto text-accent hover:text-accent/80 font-semibold"
+                            onClick={() => navigate("/register")}
+                          >
+                            Register Your Startup
+                          </Button>
+                        </p>
+                    </div>
+                    
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </Card>
+          </div>
 
         </div>
       </div>
-
-      {/* The rest of the component (Footer CTA, Benefits Section, About Section) remains unchanged. */}
       
-      {/* Footer CTA (This button is redundant now but kept for completeness of the original code) */}
+      {/* Footer CTA */}
       <div className="bg-gradient-to-b from-primary to-secondary py-16 text-white">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Launch Your Startup On Originn</h2>
           <Button
-        size="xl"
-        className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-8 h-12 text-lg"
-        onClick={() => navigate("/register")} // navigate to /register
-      >
-        Register Here
-      </Button>
-
+            size="lg"
+            className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-8 h-12 text-lg"
+            onClick={() => navigate("/register")}
+          >
+            Register Here
+          </Button>
         </div>
       </div>
       
@@ -257,8 +303,7 @@ const Login = () => {
                     key={index}
                     className={`relative flex items-center gap-8 md:gap-12 ${
                       isLeft ? 'md:flex-row' : 'md:flex-row-reverse'
-                    } flex-col animate-fade-in`}
-                    style={{ animationDelay: `${index * 0.15}s` }}
+                    } flex-col`}
                   >
                     {/* Content Side */}
                     <div className={`flex-1 ${isLeft ? 'md:text-right' : 'md:text-left'} text-center`}>
@@ -382,8 +427,6 @@ const Login = () => {
           </div>
         </div>
       </div>
-
-      {/* Section Divider */}
 
     </div>
   );
