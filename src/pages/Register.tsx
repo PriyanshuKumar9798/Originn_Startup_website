@@ -11,18 +11,18 @@ import {
 } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 
-const API_URL =
-  import.meta.env.MODE === "development"
-    ? "http://localhost:5000"
-    : "https://backend-new-originn.vercel.app";
+const API_URL = "https://firstfound-platform-backend.vercel.app/startup/apply";
 
 interface FormData {
   companyName: string;
   aboutStartup: string;
-  companyWebsite: string;
+  productDescription: string;
   founderName: string;
   founderEmail: string;
-  phone: string;
+  password: string;
+  confirmPassword: string;
+  companyWebsite: string;
+  pitchDeckUrl: string;
   instituteName: string;
   teamMembers: number;
   stage: string;
@@ -31,21 +31,23 @@ interface FormData {
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState<FormData>({
     companyName: "",
     aboutStartup: "",
-    companyWebsite: "",
+    productDescription: "",
     founderName: "",
     founderEmail: "",
-    phone: "",
+    password: "",
+    confirmPassword: "",
+    companyWebsite: "",
+    pitchDeckUrl: "",
     instituteName: "",
     teamMembers: 0,
-    stage: "Idea",
+    stage: "idea",
     address: "",
   });
 
-  const [pitchDeckImages, setPitchDeckImages] = useState<File[]>([]);
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
@@ -56,49 +58,44 @@ const Register: React.FC = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return;
-    const files = Array.from(e.target.files);
-    setPitchDeckImages(files);
-
-    // Create preview URLs
-    const urls = files.map((file) => URL.createObjectURL(file));
-    setImagePreviews(urls);
-  };
-
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match!");
+      return;
+    }
+
     try {
-      const formPayload = new FormData();
-      formPayload.append("companyName", formData.companyName);
-      formPayload.append("about", formData.aboutStartup);
-      formPayload.append("companyWebsite", formData.companyWebsite);
-      formPayload.append("founderTitle", "Mr");
-      formPayload.append("founderName", formData.founderName);
-      formPayload.append("founderMail", formData.founderEmail);
-      formPayload.append("founderPhone", formData.phone || "N/A");
-      formPayload.append("instituteName", formData.instituteName || "N/A");
-      formPayload.append(
-        "teamMembers",
-        String(formData.teamMembers || 0)
-      );
-      formPayload.append("stage", formData.stage);
-      formPayload.append("address", formData.address || "N/A");
+      const payload = {
+        companyName: formData.companyName,
+        aboutStartup: formData.aboutStartup,
+        founderEmail: formData.founderEmail,
+        password: formData.password,
+        confirmPassword: formData.confirmPassword,
+        productDescription: formData.productDescription,
+        founderName: formData.founderName,
+        companyWebsite: formData.companyWebsite,
+        pitchDeckUrl: formData.pitchDeckUrl,
+        instituteName: formData.instituteName,
+        teamMembers: Number(formData.teamMembers),
+        stage: formData.stage.toLowerCase(),
+        address: formData.address,
+        status: "pending",
+      };
 
-      // Append images
-      pitchDeckImages.forEach((file) => {
-        formPayload.append("pitchDeckImages", file);
-      });
-
-      const response = await fetch(`${API_URL}/api/startups/register`, {
+      const response = await fetch(API_URL, {
         method: "POST",
-        body: formPayload,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
       });
+
+      const data = await response.json();
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Registration failed");
+        throw new Error(data.message || "Registration failed");
       }
 
       setSubmitted(true);
@@ -108,17 +105,18 @@ const Register: React.FC = () => {
       setFormData({
         companyName: "",
         aboutStartup: "",
-        companyWebsite: "",
+        productDescription: "",
         founderName: "",
         founderEmail: "",
-        phone: "",
+        password: "",
+        confirmPassword: "",
+        companyWebsite: "",
+        pitchDeckUrl: "",
         instituteName: "",
         teamMembers: 0,
-        stage: "Idea",
+        stage: "idea",
         address: "",
       });
-      setPitchDeckImages([]);
-      setImagePreviews([]);
 
       // Redirect
       setTimeout(() => {
@@ -134,18 +132,18 @@ const Register: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary via-primary to-secondary flex items-center">
       <div className="container mx-auto px-4 py-8 md:py-12 grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
-        {/* Left Hero */}
+        {/* Left Section */}
         <div className="text-white space-y-6 flex flex-col justify-center lg:justify-start pt-4 lg:pt-0">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
             Launch India's Next Big Thing
           </h1>
           <p className="text-lg sm:text-xl text-primary-foreground/80 leading-relaxed">
-            Originn is more than a marketplace—it's a curated ecosystem designed
-            to showcase India's most promising ventures.
+            Originn is a curated ecosystem designed to showcase India's most
+            promising ventures.
           </p>
         </div>
 
-        {/* Right Card */}
+        {/* Registration Card */}
         <Card className="shadow-3xl border-border/50 backdrop-blur-sm bg-card/95">
           <CardHeader>
             <CardTitle className="text-5xl text-center">
@@ -172,17 +170,16 @@ const Register: React.FC = () => {
               <div className="space-y-2">
                 <Label htmlFor="companyName">Company Name *</Label>
                 <Input
-                  type="text"
                   id="companyName"
                   name="companyName"
                   value={formData.companyName}
                   onChange={handleChange}
-                  placeholder="Your startup name"
                   required
+                  placeholder="TechNova Pvt. Ltd."
                 />
               </div>
 
-              {/* About */}
+              {/* About Startup */}
               <div className="space-y-2">
                 <Label htmlFor="aboutStartup">About Startup *</Label>
                 <textarea
@@ -190,25 +187,41 @@ const Register: React.FC = () => {
                   name="aboutStartup"
                   value={formData.aboutStartup}
                   onChange={handleChange}
-                  placeholder="Brief description"
+                  required
                   rows={3}
                   className="w-full border border-gray-300 rounded-xl px-4 py-2"
-                  required
+                  placeholder="Brief about your startup"
                 />
               </div>
 
-              {/* Founder Info */}
+              {/* Product Description */}
+              <div className="space-y-2">
+                <Label htmlFor="productDescription">
+                  Product Description *
+                </Label>
+                <textarea
+                  id="productDescription"
+                  name="productDescription"
+                  value={formData.productDescription}
+                  onChange={handleChange}
+                  required
+                  rows={3}
+                  className="w-full border border-gray-300 rounded-xl px-4 py-2"
+                  placeholder="Describe your main product or service"
+                />
+              </div>
+
+              {/* Founder Details */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="founderName">Founder Name *</Label>
                   <Input
-                    type="text"
                     id="founderName"
                     name="founderName"
                     value={formData.founderName}
                     onChange={handleChange}
-                    placeholder="Full Name"
                     required
+                    placeholder="Rahul Sharma"
                   />
                 </div>
                 <div className="space-y-2">
@@ -219,110 +232,101 @@ const Register: React.FC = () => {
                     name="founderEmail"
                     value={formData.founderEmail}
                     onChange={handleChange}
-                    placeholder="email@example.com"
+                    required
+                    placeholder="founder@technova.com"
+                  />
+                </div>
+              </div>
+
+              {/* Passwords */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password *</Label>
+                  <Input
+                    type="password"
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Confirm Password *</Label>
+                  <Input
+                    type="password"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
                     required
                   />
                 </div>
               </div>
 
-              {/* Company Website */}
+              {/* Links */}
               <div className="space-y-2">
                 <Label htmlFor="companyWebsite">Company Website</Label>
                 <Input
-                  type="url"
                   id="companyWebsite"
                   name="companyWebsite"
                   value={formData.companyWebsite}
                   onChange={handleChange}
-                  placeholder="https://example.com (optional)"
+                  placeholder="https://technova.com"
                 />
               </div>
 
-              {/* Phone + Institute */}
+              <div className="space-y-2">
+                <Label htmlFor="pitchDeckUrl">Pitch Deck URL</Label>
+                <Input
+                  id="pitchDeckUrl"
+                  name="pitchDeckUrl"
+                  value={formData.pitchDeckUrl}
+                  onChange={handleChange}
+                  placeholder="https://pitchdeck.com/technova"
+                />
+              </div>
+
+              {/* Institute + Team Members */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    placeholder="+91 9876543210"
-                  />
-                </div>
                 <div className="space-y-2">
                   <Label htmlFor="instituteName">Institute Name</Label>
                   <Input
-                    type="text"
                     id="instituteName"
                     name="instituteName"
                     value={formData.instituteName}
                     onChange={handleChange}
-                    placeholder="Your institute / organization"
+                    placeholder="National Institute of Technology"
                   />
                 </div>
-              </div>
-
-              {/* Stage + Team Members */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="stage">Stage *</Label>
-                  <select
-                    id="stage"
-                    name="stage"
-                    value={formData.stage}
-                    onChange={handleChange}
-                    className="w-full border border-gray-300 rounded-xl px-4 py-2"
-                    required
-                  >
-                    <option value="Idea">Idea</option>
-                    <option value="Prototype">Prototype</option>
-                    <option value="Revenue">Revenue</option>
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="teamMembers">No. of Team Members</Label>
+                  <Label htmlFor="teamMembers">Team Members</Label>
                   <Input
                     type="number"
                     id="teamMembers"
                     name="teamMembers"
                     value={formData.teamMembers}
                     onChange={handleChange}
-                    placeholder="Enter number"
+                    placeholder="5"
                   />
                 </div>
               </div>
 
-              {/* Pitch Deck Upload */}
+              {/* Stage */}
               <div className="space-y-2">
-                <Label htmlFor="pitchDeckImages">Pitch Deck (Images)</Label>
-                <Input
-                  type="file"
-                  id="pitchDeckImages"
-                  name="pitchDeckImages"
-                  accept="image/*"
-                  multiple
-                  onChange={handleImageChange}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Upload one or more images of your pitch deck (JPG, PNG).
-                </p>
-
-                {imagePreviews.length > 0 && (
-                  <div className="grid grid-cols-3 gap-2 mt-2">
-                    {imagePreviews.map((src, i) => (
-                      <div key={i} className="border rounded-lg overflow-hidden">
-                        <img
-                          src={src}
-                          alt={`pitch-preview-${i}`}
-                          className="w-full h-28 object-cover"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <Label htmlFor="stage">Stage *</Label>
+                <select
+                  id="stage"
+                  name="stage"
+                  value={formData.stage}
+                  onChange={handleChange}
+                  className="w-full border border-gray-300 rounded-xl px-4 py-2"
+                  required
+                >
+                  <option value="idea">Idea</option>
+                  <option value="prototype">Prototype</option>
+                  <option value="revenue">Revenue</option>
+                </select>
               </div>
 
               {/* Address */}
@@ -333,12 +337,13 @@ const Register: React.FC = () => {
                   name="address"
                   value={formData.address}
                   onChange={handleChange}
-                  placeholder="Startup Address"
                   rows={2}
                   className="w-full border border-gray-300 rounded-xl px-4 py-2"
+                  placeholder="Jaipur, Rajasthan"
                 />
               </div>
 
+              {/* Submit */}
               <Button
                 type="submit"
                 className="w-full h-12 text-lg font-semibold bg-accent hover:bg-accent/90 text-white"
@@ -365,4 +370,3 @@ const Register: React.FC = () => {
 };
 
 export default Register;
-
