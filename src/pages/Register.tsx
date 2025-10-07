@@ -67,23 +67,6 @@ const Register: React.FC = () => {
     }
 
     try {
-      const payload = {
-        companyName: formData.companyName,
-        aboutStartup: formData.aboutStartup,
-        founderEmail: formData.founderEmail,
-        password: formData.password,
-        confirmPassword: formData.confirmPassword,
-        productDescription: formData.productDescription,
-        founderName: formData.founderName,
-        companyWebsite: formData.companyWebsite,
-        pitchDeckUrl: formData.pitchDeckUrl,
-        instituteName: formData.instituteName,
-        teamMembers: Number(formData.teamMembers),
-        stage: formData.stage.toLowerCase(),
-        address: formData.address,
-        status: "pending",
-      };
-
       const response = await fetch(API_URL, {
         method: "POST",
         headers: {
@@ -101,7 +84,6 @@ const Register: React.FC = () => {
       setSubmitted(true);
       setError("");
 
-      // Reset form
       setFormData({
         companyName: "",
         aboutStartup: "",
@@ -118,7 +100,6 @@ const Register: React.FC = () => {
         address: "",
       });
 
-      // Redirect
       setTimeout(() => {
         setSubmitted(false);
         navigate("/");
@@ -132,18 +113,108 @@ const Register: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary via-primary to-secondary flex items-center">
       <div className="container mx-auto px-4 py-8 md:py-12 grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
-        {/* Left Section */}
-        <div className="text-white space-y-6 flex flex-col justify-center lg:justify-start pt-4 lg:pt-0">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-            Launch India's Next Big Thing
-          </h1>
-          <p className="text-lg sm:text-xl text-primary-foreground/80 leading-relaxed">
-            Originn is a curated ecosystem designed to showcase India's most
-            promising ventures.
-          </p>
+        
+        {/* ===== Left Section ===== */}
+        <div className="text-white space-y-10 flex flex-col justify-center lg:justify-start pt-4 lg:pt-0">
+          
+          {/* Originn Startup Portal Title */}
+          <div className="text-center mb-6 lg:mb-10">
+            <h2 className="text-3xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-accent shadow-lg inline-block pb-1">
+              Originn Startup Portal
+            </h2>
+            <p className="text-lg text-primary-foreground/80 mt-2">
+              Access your launchpad for India's next big innovation.
+            </p>
+          </div>
+
+          {/* Main Headline */}
+          <div>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+              Launch India's Next Big Thing
+            </h1>
+            <p className="text-lg sm:text-xl text-primary-foreground/80 leading-relaxed mt-3">
+              Originn is a curated ecosystem designed to showcase India's most
+              promising ventures.
+            </p>
+          </div>
+
+          {/* Feature Grid */}
+          <div className="grid grid-cols-3 gap-6 pt-4">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-accent">₹0</div>
+              <div className="text-sm text-primary-foreground/70">
+                Platform Fee
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-green-400">100%</div>
+              <div className="text-sm text-primary-foreground/70">
+                Escrow Protected
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-accent">24/7</div>
+              <div className="text-sm text-primary-foreground/70">
+                Support
+              </div>
+            </div>
+          </div>
+          <div className="mt-18 text-center space-y-3">
+            <h3 className="text-2xl md:text-3xl font-semibold text-accent">
+              Why Choose Originn?
+            </h3>
+            <p className="text-primary-foreground/80 text-base md:text-lg max-w-md mx-auto">
+              Get mentorship, investor access, and resources to accelerate your
+              startup journey — all under one platform designed for founders.
+            </p>
+
+            <div className="border-l-4 border-white/40 pl-6 py-2">
+                <h3 className="text-2xl font-semibold mb-3 text-white">A Platform for Discovery</h3>
+                <p className="text-primary-foreground/80 leading-relaxed">
+                  Originn is a curated ecosystem showcasing India's most promising ventures. We engage in direct outreach 
+                  to identify high-potential startups from leading incubators, accelerators, university innovation hubs, 
+                  and design schools. By joining, you position your venture within a movement celebrating the "Make in India" spirit.
+                </p>
+            </div>
+
+            <div className="border-l-4 border-success/60 pl-6 py-2">
+                <h3 className="text-2xl font-semibold mb-3 text-white">De-Risking Pre-Orders</h3>
+                <p className="text-primary-foreground/80 leading-relaxed">
+                  Our mandatory digital escrow system addresses the biggest hurdle in pre-orders: trust. When backers pre-order, 
+                  funds are held in RBI-regulated escrow accounts, not transferred directly to you. This immediately mitigates backer 
+                  fear and builds the confidence needed for upfront commitments.
+                </p>
+            </div>
+
+            <div className="border-l-4 border-accent/60 pl-6 py-2">
+                <h3 className="text-2xl font-semibold mb-3 text-white">Milestone-Based Funding</h3>
+                <p className="text-primary-foreground/80 leading-relaxed">
+                  We work with you to break down your production plan into clear, verifiable milestones. Funds are released in 
+                  pre-agreed tranches only after our team verifies milestone completion. This provides structured working capital 
+                  and gives backers radical transparency.
+                </p>
+            </div>
+
+            <div className="border-l-4 border-white/40 pl-6 py-2">
+                <h3 className="text-2xl font-semibold mb-3 text-white">Bridge to Investors</h3>
+                <p className="text-primary-foreground/80 leading-relaxed">
+                  For startups demonstrating significant traction, we offer access to a hyper-exclusive network of accredited investors. 
+                  Your verified campaign data becomes powerful evidence of product-market fit, transforming investor decisions from 
+                  speculation to evidence-based confidence.
+                </p>
+            </div>
+
+
+          </div>
+
+        
+
         </div>
 
-        {/* Registration Card */}
+       
+
+
+        {/* ===== Registration Card ===== */}
         <Card className="shadow-3xl border-border/50 backdrop-blur-sm bg-card/95">
           <CardHeader>
             <CardTitle className="text-5xl text-center">
@@ -196,9 +267,7 @@ const Register: React.FC = () => {
 
               {/* Product Description */}
               <div className="space-y-2">
-                <Label htmlFor="productDescription">
-                  Product Description *
-                </Label>
+                <Label htmlFor="productDescription">Product Description *</Label>
                 <textarea
                   id="productDescription"
                   name="productDescription"
