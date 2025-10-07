@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const API_URL = "https://firstfound-platform-backend.vercel.app/startup/apply";
@@ -50,6 +51,9 @@ const Register: React.FC = () => {
 
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -113,11 +117,8 @@ const Register: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary via-primary to-secondary flex items-center">
       <div className="container mx-auto px-4 py-8 md:py-12 grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
-        
         {/* ===== Left Section ===== */}
         <div className="text-white space-y-10 flex flex-col justify-center lg:justify-start pt-4 lg:pt-0">
-          
-          {/* Originn Startup Portal Title */}
           <div className="text-center mb-6 lg:mb-10">
             <h2 className="text-3xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-accent shadow-lg inline-block pb-1">
               Originn Startup Portal
@@ -127,7 +128,6 @@ const Register: React.FC = () => {
             </p>
           </div>
 
-          {/* Main Headline */}
           <div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
               Launch India's Next Big Thing
@@ -138,7 +138,6 @@ const Register: React.FC = () => {
             </p>
           </div>
 
-          {/* Feature Grid */}
           <div className="grid grid-cols-3 gap-6 pt-4">
             <div className="text-center">
               <div className="text-3xl font-bold text-accent">₹0</div>
@@ -159,60 +158,62 @@ const Register: React.FC = () => {
               </div>
             </div>
           </div>
-          <div className="mt-18 text-center space-y-3">
-            {/* <h3 className="text-2xl md:text-3xl font-semibold text-accent">
-              Why Choose Originn?
-            </h3> */}
-            {/* <p className="text-primary-foreground/80 text-base md:text-lg max-w-md mx-auto">
-              Get mentorship, investor access, and resources to accelerate your
-              startup journey — all under one platform designed for founders.
-            </p> */}
 
+          <div className="mt-18 text-center space-y-3">
             <div className="border-l-4 border-white/40 pl-6 py-2">
-                <h3 className="text-2xl font-semibold mb-3 text-white">A Platform for Discovery</h3>
-                <p className="text-primary-foreground/80 leading-relaxed">
-                  Originn is a curated ecosystem showcasing India's most promising ventures. We engage in direct outreach 
-                  to identify high-potential startups from leading incubators, accelerators, university innovation hubs, 
-                  and design schools. By joining, you position your venture within a movement celebrating the "Make in India" spirit.
-                </p>
+              <h3 className="text-2xl font-semibold mb-3 text-white">
+                A Platform for Discovery
+              </h3>
+              <p className="text-primary-foreground/80 leading-relaxed">
+                Originn is a curated ecosystem showcasing India's most promising
+                ventures. We engage in direct outreach to identify
+                high-potential startups from leading incubators, accelerators,
+                university innovation hubs, and design schools. By joining, you
+                position your venture within a movement celebrating the "Make in
+                India" spirit.
+              </p>
             </div>
 
             <div className="border-l-4 border-success/60 pl-6 py-2">
-                <h3 className="text-2xl font-semibold mb-3 text-white">De-Risking Pre-Orders</h3>
-                <p className="text-primary-foreground/80 leading-relaxed">
-                  Our mandatory digital escrow system addresses the biggest hurdle in pre-orders: trust. When backers pre-order, 
-                  funds are held in RBI-regulated escrow accounts, not transferred directly to you. This immediately mitigates backer 
-                  fear and builds the confidence needed for upfront commitments.
-                </p>
+              <h3 className="text-2xl font-semibold mb-3 text-white">
+                De-Risking Pre-Orders
+              </h3>
+              <p className="text-primary-foreground/80 leading-relaxed">
+                Our mandatory digital escrow system addresses the biggest hurdle
+                in pre-orders: trust. When backers pre-order, funds are held in
+                RBI-regulated escrow accounts, not transferred directly to you.
+                This immediately mitigates backer fear and builds the confidence
+                needed for upfront commitments.
+              </p>
             </div>
 
             <div className="border-l-4 border-accent/60 pl-6 py-2">
-                <h3 className="text-2xl font-semibold mb-3 text-white">Milestone-Based Funding</h3>
-                <p className="text-primary-foreground/80 leading-relaxed">
-                  We work with you to break down your production plan into clear, verifiable milestones. Funds are released in 
-                  pre-agreed tranches only after our team verifies milestone completion. This provides structured working capital 
-                  and gives backers radical transparency.
-                </p>
+              <h3 className="text-2xl font-semibold mb-3 text-white">
+                Milestone-Based Funding
+              </h3>
+              <p className="text-primary-foreground/80 leading-relaxed">
+                We work with you to break down your production plan into clear,
+                verifiable milestones. Funds are released in pre-agreed tranches
+                only after our team verifies milestone completion. This provides
+                structured working capital and gives backers radical
+                transparency.
+              </p>
             </div>
 
             <div className="border-l-4 border-white/40 pl-6 py-2">
-                <h3 className="text-2xl font-semibold mb-3 text-white">Bridge to Investors</h3>
-                <p className="text-primary-foreground/80 leading-relaxed">
-                  For startups demonstrating significant traction, we offer access to a hyper-exclusive network of accredited investors. 
-                  Your verified campaign data becomes powerful evidence of product-market fit, transforming investor decisions from 
-                  speculation to evidence-based confidence.
-                </p>
+              <h3 className="text-2xl font-semibold mb-3 text-white">
+                Bridge to Investors
+              </h3>
+              <p className="text-primary-foreground/80 leading-relaxed">
+                For startups demonstrating significant traction, we offer access
+                to a hyper-exclusive network of accredited investors. Your
+                verified campaign data becomes powerful evidence of
+                product-market fit, transforming investor decisions from
+                speculation to evidence-based confidence.
+              </p>
             </div>
-
-
           </div>
-
-        
-
         </div>
-
-       
-
 
         {/* ===== Registration Card ===== */}
         <Card className="shadow-3xl border-border/50 backdrop-blur-sm bg-card/95">
@@ -309,27 +310,60 @@ const Register: React.FC = () => {
 
               {/* Passwords */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
+                {/* Password */}
+                <div className="space-y-2 relative">
                   <Label htmlFor="password">Password *</Label>
-                  <Input
-                    type="password"
-                    id="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    required
-                  />
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      id="password"
+                      name="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      required
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-5 h-5" />
+                      ) : (
+                        <Eye className="w-5 h-5" />
+                      )}
+                    </button>
+                  </div>
                 </div>
-                <div className="space-y-2">
+
+                {/* Confirm Password */}
+                <div className="space-y-2 relative">
                   <Label htmlFor="confirmPassword">Confirm Password *</Label>
-                  <Input
-                    type="password"
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    required
-                  />
+                  <div className="relative">
+                    <Input
+                      type={showConfirmPassword ? "text" : "password"}
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                      required
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                      className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="w-5 h-5" />
+                      ) : (
+                        <Eye className="w-5 h-5" />
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
 
