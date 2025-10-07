@@ -27,23 +27,29 @@ interface FormData {
   twitter: string;
   founders: Member[];
   team: Member[];
+  institute: {
+    name: string;
+    description: string;
+  };
+  stageDescription?: string;
 }
 
 const API_BASE = "https://firstfound-platform-backend.vercel.app";
 
 // Dropdown options
 const categories = [
-  "AI & Deep Tech", "Healthcare & Life Sciences", "FinTech",
+  "Custom","AI & Deep Tech", "Healthcare & Life Sciences", "FinTech",
   "SaaS & Enterprise Tech", "Consumer Tech", "Sustainability & Climate Tech",
-  "EdTech", "Media & Entertainment", "Logistics & Supply Chain", "Custom"
+  "EdTech", "Media & Entertainment", "Logistics & Supply Chain", 
 ];
 
 const productTypes = ["Physical Product (Hardware)", "SaaS (Software as a Service)", "Digital Product", "Service"];
 const targetMarkets = ["B2C", "B2B", "D2C"];
-const stages = ["Idea Stage", "Prototype Stage", "Pre-Revenue Stage", "Early Revenue Stage", "Series A/B/C Stage", "Custom"];
+const stages = ["Custom","Idea Stage", "Prototype Stage", "Pre-Revenue Stage", "Early Revenue Stage", "Series A/B/C Stage",];
 
 // Institution list (as provided)
 const institutions = [
+  "Custom",
   "IIT Madras", "IIT Delhi", "IIT Bombay", "IIT Kanpur", "IIT Kharagpur", "IIT Roorkee", "IIT Guwahati",
   "IIT Hyderabad", "IIT Indore", "IIT (BHU) Varanasi", "IIT ISM Dhanbad", "IIT Gandhinagar", "IIT Ropar",
   "IIT Patna", "IIT Jodhpur", "NIT Tiruchirappalli", "NIT Surathkal", "NIT Rourkela", "NIT Warangal",
@@ -57,7 +63,7 @@ const institutions = [
   "Galgotias University", "Amity Noida", "LPU Jalandhar", "XLRI Jamshedpur", "SPJIMR Mumbai", "MDI Gurgaon",
   "SIBM Pune", "NMIMS Mumbai", "ISB Hyderabad", "Great Lakes Chennai", "IMT Ghaziabad", "MICA Ahmedabad",
   "GIM Goa", "TAPMI Manipal", "XIMB Bhubaneswar", "KJ Somaiya Mumbai", "FORE Delhi", "LIBA Chennai",
-  "WeSchool Mumbai", "IRMA Anand", "BIMTECH Greater Noida", "IBS Hyderabad", "Custom"
+  "WeSchool Mumbai", "IRMA Anand", "BIMTECH Greater Noida", "IBS Hyderabad",
 ];
 
 const StartupProfileForm = () => {
@@ -77,9 +83,14 @@ const StartupProfileForm = () => {
     linkedin: "",
     instagram: "",
     twitter: "",
+    stageDescription: "",
     // Initialize members with the new customInstitution field
     founders: [{ name: "", designation: "", institution: "", customInstitution: "", photo: null }],
     team: [{ name: "", designation: "", institution: "", customInstitution: "", photo: null }],
+    institute: {
+      name: "",
+      description: "",
+    },
   });
 
   const [submitStatus, setSubmitStatus] = useState<'success' | 'error' | null>(null);
@@ -179,6 +190,7 @@ const StartupProfileForm = () => {
       customStage: undefined,   // Remove temporary field
       founders: finalizedFounders,
       team: finalizedTeam,
+      institute: formData.institute,
     };
 
     try {
@@ -321,23 +333,96 @@ const StartupProfileForm = () => {
 
             {/* Stage */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Stage</label>
-              <select name="stage" value={formData.stage} onChange={handleChange} className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500">
-                <option value="">Select Stage</option>
-                {stages.map(s => <option key={s} value={s}>{s}</option>)}
-              </select>
-              {formData.stage === "Custom" && (
-                <input type="text" name="customStage" value={formData.customStage} onChange={handleChange} placeholder="Enter your custom stage" className="mt-2 w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
-              )}
-            </div>
+  <label className="block text-sm font-semibold text-gray-700 mb-2">Stage</label>
+  <select
+    name="stage"
+    value={formData.stage}
+    onChange={handleChange}
+    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+  >
+    <option value="">Select Stage</option>
+    {stages.map(s => <option key={s} value={s}>{s}</option>)}
+  </select>
+
+  {/* Show custom stage input only if "Custom" is selected */}
+  {formData.stage === "Custom" && (
+    <input
+      type="text"
+      name="customStage"
+      value={formData.customStage}
+      onChange={handleChange}
+      placeholder="Enter your custom stage"
+      className="mt-2 w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+    />
+  )}
+
+  {/* Stage description always visible */}
+  <textarea
+    name="stageDescription"
+    value={formData.stageDescription || ""}
+    onChange={e => setFormData(prev => ({ ...prev, stageDescription: e.target.value }))}
+    placeholder="Describe your stage"
+    rows={3}
+    className="mt-2 w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+  />
+</div>
+
+
+
 
             {/* Description */}
             <div className="md:col-span-2">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Startup Description</label>
               <textarea name="description" value={formData.description} onChange={handleChange} placeholder="Tell us about your company..." rows={5} className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"/>
             </div>
           </div>
+
+          {/* Institute Info */}
+{/* Institute Info */}
+<div className="md:col-span-2 space-y-4">
+  <label className="block text-sm font-semibold text-gray-700 mb-2">Institute</label>
+  
+  <select
+    value={formData.institute.name}
+    onChange={e => setFormData(prev => ({
+      ...prev,
+      institute: { ...prev.institute, name: e.target.value }
+    }))}
+    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+  >
+    <option value="">Select Institute</option>
+    {institutions.map(inst => <option key={inst} value={inst}>{inst}</option>)}
+  </select>
+
+  {formData.institute.name === "Custom" && (
+    <input
+      type="text"
+      placeholder="Enter Custom Institute Name"
+      value={formData.institute.description} // Or a separate field like `customName` if needed
+      onChange={e => setFormData(prev => ({
+        ...prev,
+        institute: { ...prev.institute, description: e.target.value } // Or `customName`
+      }))}
+      className="mt-2 w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+    />
+  )}
+
+  <label className="block text-sm font-semibold text-gray-700 mt-2">Institute Description</label>
+  <textarea
+    name="instituteDescription"
+    value={formData.institute.description}
+    onChange={e => setFormData(prev => ({
+      ...prev,
+      institute: { ...prev.institute, description: e.target.value }
+    }))}
+    placeholder="Write a brief description about your institute"
+    rows={3}
+    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+  />
+</div>
+
         </section>
+
 
         {/* Social Media Section */}
         <section className="bg-gray-50 p-6 rounded-xl border border-gray-200 space-y-5">

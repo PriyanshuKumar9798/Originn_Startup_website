@@ -99,9 +99,9 @@ const Preorder: React.FC = () => {
             onChange={handleChange}
             required
             className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none transition"
-            style={{ 
-              focusRingColor: "#192a51",
-            }}
+            // style={{ 
+            //   focusRingColor: "#192a51",
+            // }}
             onFocus={(e) => {
               e.target.style.borderColor = "#192a51";
               e.target.style.boxShadow = `0 0 0 2px rgba(25, 42, 81, 0.2)`;
