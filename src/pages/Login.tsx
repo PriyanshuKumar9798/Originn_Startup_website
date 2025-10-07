@@ -71,9 +71,10 @@ const Login = () => {
       localStorage.setItem("startupId", data.startup?.id || "");
       localStorage.setItem("startupEmail", data.startup?.founderEmail || "");
       localStorage.setItem("companyName", data.startup?.companyName || "");
-
-      setSuccess(true);
-
+      
+      // ✅ Add this line
+      localStorage.setItem("currentUserEmail", data.startup?.founderEmail || "");
+      
       // ⏳ Small delay before navigation
       setTimeout(() => {
         navigate("/dashboard");
