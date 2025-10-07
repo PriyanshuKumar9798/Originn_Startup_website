@@ -160,13 +160,13 @@ const Register: React.FC = () => {
             </div>
           </div>
           <div className="mt-18 text-center space-y-3">
-            <h3 className="text-2xl md:text-3xl font-semibold text-accent">
+            {/* <h3 className="text-2xl md:text-3xl font-semibold text-accent">
               Why Choose Originn?
-            </h3>
-            <p className="text-primary-foreground/80 text-base md:text-lg max-w-md mx-auto">
+            </h3> */}
+            {/* <p className="text-primary-foreground/80 text-base md:text-lg max-w-md mx-auto">
               Get mentorship, investor access, and resources to accelerate your
               startup journey — all under one platform designed for founders.
-            </p>
+            </p> */}
 
             <div className="border-l-4 border-white/40 pl-6 py-2">
                 <h3 className="text-2xl font-semibold mb-3 text-white">A Platform for Discovery</h3>
