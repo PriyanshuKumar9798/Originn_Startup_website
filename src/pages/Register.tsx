@@ -119,20 +119,20 @@ const Register: React.FC = () => {
       <div className="container mx-auto px-4 py-8 md:py-12 grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
         {/* ===== Left Section ===== */}
         <div className="text-white space-y-10 flex flex-col justify-center lg:justify-start pt-4 lg:pt-0">
-          <div className="text-center mb-6 lg:mb-10">
+          {/* <div className="text-center mb-6 lg:mb-10">
             <h2 className="text-3xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-accent shadow-lg inline-block pb-1">
               Originn Startup Portal
             </h2>
             <p className="text-lg text-primary-foreground/80 mt-2">
               Access your launchpad for India's next big innovation.
             </p>
-          </div>
+          </div> */}
 
           <div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+            <h6 className="text-3xl sm:text-3xl md:text-3xl lg:text-3xl font-bold leading-tight">
               Launch India's Next Big Thing
-            </h1>
-            <p className="text-lg sm:text-xl text-primary-foreground/80 leading-relaxed mt-3">
+            </h6>
+            <p className="text-sm sm:text-xl text-primary-foreground/80 leading-relaxed mt-3">
               Originn is a curated ecosystem designed to showcase India's most
               promising ventures.
             </p>

@@ -131,14 +131,14 @@ const Login = () => {
     <div className="min-h-screen bg-gradient-to-b from-primary via-primary to-secondary">
       <div className="container mx-auto px-4 py-8 md:py-12">
         {/* Heading */}
-        <div className="text-center mb-10 lg:mb-16">
+        {/* <div className="text-center mb-10 lg:mb-16">
           <h2 className="text-3xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-accent shadow-lg inline-block pb-1">
             Originn Startup Portal
           </h2>
           <p className="text-lg text-primary-foreground/80 mt-2">
             Access your launchpad for India's next big innovation.
           </p>
-        </div>
+        </div> */}
 
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Left Section */}
@@ -149,9 +149,9 @@ const Login = () => {
               </span>
             </div>
 
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+            <h6 className="text-4xl md:text-5xl lg:text-4xl font-bold leading-tight">
               Launch India's Next Big Thing
-            </h1>
+            </h6>
 
             <p className="text-xl text-primary-foreground/80 leading-relaxed">
               Originn is a curated ecosystem designed to showcase India's most
@@ -184,7 +184,7 @@ const Login = () => {
 
           {/* Right Section - Login Card */}
           <div className="space-y-6 max-w-md w-full mx-auto lg:max-w-none">
-            <div className="text-center">
+            {/* <div className="text-center">
               <Button
                 variant="outline"
                 size="lg"
@@ -197,7 +197,7 @@ const Login = () => {
               <p className="text-xs text-primary-foreground/60 mt-2">
                 Visit our main website to learn more
               </p>
-            </div>
+            </div> */}
 
             <Card className="shadow-2xl border-border/50 backdrop-blur-sm bg-card/95">
               <CardHeader>
