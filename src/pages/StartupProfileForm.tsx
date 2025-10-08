@@ -11,7 +11,7 @@ interface Member {
 
 interface FormData {
   companyName: string;
-  registrationNo: string;
+  registrationNo?: string; 
   website: string;
   category: string;
   customCategory: string;

@@ -247,7 +247,7 @@ const Register: React.FC = () => {
                   value={formData.companyName}
                   onChange={handleChange}
                   required
-                  placeholder="TechNova Pvt. Ltd."
+                  placeholder="companyName"
                 />
               </div>
 
@@ -291,7 +291,7 @@ const Register: React.FC = () => {
                     value={formData.founderName}
                     onChange={handleChange}
                     required
-                    placeholder="Rahul Sharma"
+                    placeholder="founderName"
                   />
                 </div>
                 <div className="space-y-2">
@@ -303,7 +303,7 @@ const Register: React.FC = () => {
                     value={formData.founderEmail}
                     onChange={handleChange}
                     required
-                    placeholder="founder@technova.com"
+                    placeholder="founderEmail.com"
                   />
                 </div>
               </div>
@@ -399,7 +399,7 @@ const Register: React.FC = () => {
                     name="instituteName"
                     value={formData.instituteName}
                     onChange={handleChange}
-                    placeholder="National Institute of Technology"
+                    placeholder="National Institute of Technology Delhi"
                   />
                 </div>
                 <div className="space-y-2">
