@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { Shield, TrendingUp, CheckCircle2, Rocket, Lock, ShoppingCart, BarChart3, Users, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -11,20 +12,36 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Shield,
-  TrendingUp,
-  Users,
-  CheckCircle2,
-  Rocket,
-  Lock,
-  Eye,
-  EyeOff,
-  ArrowLeft,
-} from "lucide-react";
+
+const benefits = [
+  {
+    icon: Shield,
+    title: "Apply & Get Verified",
+    description: "Begin by submitting your application on our portal. Every startup undergoes a rigorous hybrid AI-human vetting process to ensure a high-quality, trusted ecosystem for everyone involved."
+  },
+  {
+    icon: Rocket,
+    title: "Build Your Showcase & Get Discovered",
+    description: "Once approved, access your dashboard to create a compelling startup profile. After a final review, your page goes live, placing you in front of a dedicated community of early adopters ready to discover India's next big thing."
+  },
+  {
+    icon: ShoppingCart,
+    title: "Validate Your Product with Pre-Orders",
+    description: "When you're ready to prove demand, apply to launch a pre-order campaign. A successful campaign provides indisputable, tangible proof of product-market fit and secures the working capital for production."
+  },
+  {
+    icon: Lock,
+    title: "Milestone-Based Escrow Funding",
+    description: "Backer funds are never sent directly to you. They are held in a campaign-specific, RBI-regulated digital escrow account. Funds are only released in tranches after our team verifies you've hit pre-defined production milestones."
+  },
+  {
+    icon: BarChart3,
+    title: "Bridge to Professional Investors",
+    description: "Your success generates powerful data. We provide professional investors with access to the \"Originn Intelligence\" dashboard, which shows your verified pre-sale revenue, customer analytics, and traction data, turning investor speculation into evidence-based decisions."
+  }
+];
 
 const ORIGINN_MAIN_PAGE_URL = "https://originn-main-website.vercel.app/";
-// ✅ Use your real backend login endpoint here
 const BACKEND_URL = "https://firstfound-platform-backend.vercel.app/startup/login";
 
 const Login = () => {
@@ -38,7 +55,17 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  // ✅ LOGIN HANDLER
+  // Auth state stored in memory
+  const [authData, setAuthData] = useState({
+    token: "",
+    isLoggedIn: false,
+    startupId: "",
+    startupEmail: "",
+    companyName: "",
+    currentUserEmail: ""
+  });
+
+  // LOGIN HANDLER
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
@@ -65,17 +92,19 @@ const Login = () => {
         return;
       }
 
-      // ✅ Store backend response properly
-      localStorage.setItem("authToken", data.token);
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("startupId", data.startup?.id || "");
-      localStorage.setItem("startupEmail", data.startup?.founderEmail || "");
-      localStorage.setItem("companyName", data.startup?.companyName || "");
+      // Store auth data in state
+      setAuthData({
+        token: data.token,
+        isLoggedIn: true,
+        startupId: data.startup?.id || "",
+        startupEmail: data.startup?.founderEmail || "",
+        companyName: data.startup?.companyName || "",
+        currentUserEmail: data.startup?.founderEmail || ""
+      });
+
+      setSuccess(true);
       
-      // ✅ Add this line
-      localStorage.setItem("currentUserEmail", data.startup?.founderEmail || "");
-      
-      // ⏳ Small delay before navigation
+      // Small delay before navigation
       setTimeout(() => {
         navigate("/dashboard");
       }, 1000);
@@ -87,59 +116,9 @@ const Login = () => {
     }
   };
 
-  // ✅ Benefit cards (unchanged)
-  const benefits = [
-    {
-      icon: Shield,
-      title: "Trust-as-a-Service",
-      description:
-        "RBI-regulated digital escrow protects every pre-order, building confidence with your backers.",
-    },
-    {
-      icon: TrendingUp,
-      title: "Market Validation",
-      description:
-        "Generate verified traction data that proves product-market fit to investors and stakeholders.",
-    },
-    {
-      icon: Users,
-      title: "Early Adopter Community",
-      description:
-        "Access enthusiastic customers eager to discover India's next big innovation before anyone else.",
-    },
-    {
-      icon: Rocket,
-      title: "Milestone-Based Funding",
-      description:
-        "Receive working capital in structured tranches as you hit verified production milestones.",
-    },
-    {
-      icon: Lock,
-      title: "Investor Bridge",
-      description:
-        "Successful campaigns unlock access to our exclusive network of accredited investors.",
-    },
-    {
-      icon: CheckCircle2,
-      title: "Rich Product Showcase",
-      description:
-        "Create immersive pages with HD videos, 360° views, and high-res imagery to overcome the touch barrier.",
-    },
-  ];
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary via-primary to-secondary">
       <div className="container mx-auto px-4 py-8 md:py-12">
-        {/* Heading */}
-        {/* <div className="text-center mb-10 lg:mb-16">
-          <h2 className="text-3xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-accent shadow-lg inline-block pb-1">
-            Originn Startup Portal
-          </h2>
-          <p className="text-lg text-primary-foreground/80 mt-2">
-            Access your launchpad for India's next big innovation.
-          </p>
-        </div> */}
-
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Left Section */}
           <div className="text-white space-y-6">
@@ -184,21 +163,6 @@ const Login = () => {
 
           {/* Right Section - Login Card */}
           <div className="space-y-6 max-w-md w-full mx-auto lg:max-w-none">
-            {/* <div className="text-center">
-              <Button
-                variant="outline"
-                size="lg"
-                className="bg-gradient-to-r from-accent/10 to-accent/5 backdrop-blur-sm text-accent border-accent/30 hover:bg-accent/20 hover:border-accent/50 font-semibold shadow-lg hover:shadow-accent/20 transition-all duration-300 group"
-                onClick={() => window.open(ORIGINN_MAIN_PAGE_URL, "_blank")}
-              >
-                <ArrowLeft className="mr-2 h-4 w-4 group-hover:-translate-x-1 transition-transform" />
-                Go to Originn Main Page
-              </Button>
-              <p className="text-xs text-primary-foreground/60 mt-2">
-                Visit our main website to learn more
-              </p>
-            </div> */}
-
             <Card className="shadow-2xl border-border/50 backdrop-blur-sm bg-card/95">
               <CardHeader>
                 <CardTitle className="text-2xl">Sign In</CardTitle>
@@ -271,7 +235,7 @@ const Login = () => {
 
                     <div className="mt-4 pt-4 border-t border-border">
                       <p className="text-center text-sm text-muted-foreground">
-                        Don’t have an account?{" "}
+                        Don't have an account?{" "}
                         <Button
                           variant="link"
                           className="p-0 h-auto text-accent hover:text-accent/80 font-semibold"
@@ -286,10 +250,9 @@ const Login = () => {
               </CardContent>
             </Card>
           </div>
-          
         </div>
-        
       </div>
+
       <div className="relative py-8 bg-gradient-to-b from-secondary to-primary">
         <div className="container mx-auto px-4">
           <div className="relative">
@@ -309,19 +272,15 @@ const Login = () => {
       <div className="bg-gradient-to-b from-primary to-secondary py-16 text-white">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Launch Your Startup On Originn</h2>
-          {/* <p className="text-xl mb-8 text-primary-foreground/90">
-            Join India's most promising startups on Originn today
-          </p> */}
           <Button
-  className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-8 h-12 text-lg"
-  onClick={() => {
-    navigate("/register");
-    window.scrollTo(0, 0);
-  }}
->
-  Register Here
-</Button>
-
+            className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-8 h-12 text-lg"
+            onClick={() => {
+              navigate("/register");
+              window.scrollTo(0, 0);
+            }}
+          >
+            Register Here
+          </Button>
         </div>
       </div>
 
@@ -342,91 +301,76 @@ const Login = () => {
       </div>
 
       {/* Benefits Section - Flowing Pathway Design */}
-      <div className="bg-gradient-to-b from-primary via-secondary to-primary py-16 md:py-24 relative overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-accent rounded-full blur-3xl"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-success rounded-full blur-3xl"></div>
-        </div>
-        
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="text-center mb-16 md:mb-20">
-            <h2 className="text-3xl md:text-5xl font-bold mb-6 text-white">Why Choose Originn?</h2>
-            <p className="text-lg md:text-xl text-primary-foreground/90 max-w-3xl mx-auto leading-relaxed">
-              We provide the infrastructure, trust, and community you need to transform your idea into a market-validated product.
+      <div className="bg-gradient-to-b from-primary to-secondary py-16 md:py-24">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12 md:mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">Startup Journey on Originn.co.in</h2>
+            <p className="text-base md:text-lg text-primary-foreground/90 max-w-2xl mx-auto">
+              A structured pathway from validation to funding. Follow these steps to launch successfully on our platform.
             </p>
           </div>
           
-          {/* Flowing Pathway */}
-          <div className="max-w-5xl mx-auto relative">
-            {/* Central Curved Path Line */}
-            <div className="absolute left-1/2 top-0 bottom-0 w-1 -ml-0.5 hidden md:block">
-              <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-white/60 to-white/40"></div>
-            </div>
+          <div className="relative space-y-8 md:space-y-12">
+            {/* Continuous vertical line connecting all steps */}
+            <div className="absolute left-8 top-8 bottom-8 w-0.5 bg-white/40 hidden md:block"></div>
             
-            {/* Benefits Flow */}
-            <div className="space-y-16 md:space-y-24">
-              {benefits.map((benefit, index) => {
-                const Icon = benefit.icon;
-                const isLeft = index % 2 === 0;
-                
-                return (
-                  <div
-                    key={index}
-                    className={`relative flex items-center gap-8 md:gap-12 ${
-                      isLeft ? 'md:flex-row' : 'md:flex-row-reverse'
-                    } flex-col animate-fade-in`}
-                    style={{ animationDelay: `${index * 0.15}s` }}
-                  >
-                    {/* Content Side */}
-                    <div className={`flex-1 ${isLeft ? 'md:text-right' : 'md:text-left'} text-center`}>
-                      <div className={`inline-block ${isLeft ? 'md:ml-auto' : 'md:mr-auto'}`}>
-                        <div className="flex items-start gap-4 mb-4">
-                          {isLeft && <div className="hidden md:block flex-1"></div>}
-                          <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br from-accent/30 to-accent/10 backdrop-blur-sm flex items-center justify-center border-2 border-white/20 ${!isLeft && 'md:order-2'}`}>
-                            <Icon className="w-8 h-8 text-white" />
-                          </div>
-                          {!isLeft && <div className="hidden md:block flex-1"></div>}
-                        </div>
-                        
-                        <h3 className="text-2xl md:text-3xl font-bold mb-3 text-white">{benefit.title}</h3>
-                        <p className="text-base md:text-lg text-primary-foreground/80 leading-relaxed max-w-md">
-                          {benefit.description}
-                        </p>
-                      </div>
+            {benefits.map((benefit, index) => {
+              const Icon = benefit.icon;
+              const isLeft = index % 2 === 0;
+              
+              return (
+                <div
+                  key={index}
+                  className={`relative flex gap-6 md:gap-8 animate-fade-in ${
+                    isLeft ? 'md:flex-row' : 'md:flex-row-reverse'
+                  }`}
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  {/* Step Number & Icon */}
+                  <div className="relative z-10 flex-shrink-0 flex items-start md:items-center">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-accent to-accent/80 flex items-center justify-center shadow-lg shadow-accent/30 border-2 border-white/20">
+                      <span className="text-xl font-bold text-white">{index + 1}</span>
                     </div>
                     
-                    {/* Center Node */}
-                    <div className="relative z-20 flex-shrink-0">
-                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-accent via-accent to-accent/80 flex items-center justify-center shadow-2xl shadow-accent/50 border-4 border-white/30">
-                        <span className="text-2xl font-bold text-white">{index + 1}</span>
-                      </div>
-                      
-                      {/* Connecting Lines to Content */}
-                      <div className={`hidden md:block absolute top-1/2 -translate-y-1/2 h-0.5 bg-gradient-to-r ${
-                        isLeft 
-                          ? 'right-full mr-2 from-white/60 to-transparent' 
-                          : 'left-full ml-2 from-transparent to-white/60'
-                      } w-8`}></div>
-                    </div>
-                    
-                    {/* Empty Space (for alignment on desktop) */}
-                    <div className="flex-1 hidden md:block"></div>
+                    {/* Desktop: Connecting line */}
+                    <div className={`hidden md:block absolute top-1/2 -translate-y-1/2 h-px bg-white/40 ${
+                      isLeft ? 'left-full ml-2' : 'right-full mr-2'
+                    } w-6`}></div>
                   </div>
-                );
-              })}
-            </div>
-            
-            {/* End Point */}
-            <div className="flex justify-center mt-16 relative z-20">
-              <div className="flex flex-col items-center gap-4">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-success to-success/80 flex items-center justify-center shadow-2xl shadow-success/50 border-4 border-white/30">
-                  <CheckCircle2 className="w-10 h-10 text-white" />
+                  
+                  {/* Content Card */}
+                  <div className={`flex-1 ${isLeft ? 'md:pr-12' : 'md:pl-12 md:text-right'}`}>
+                    <div className={`bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-5 md:p-6 hover:bg-white/10 transition-colors ${
+                      isLeft ? 'md:mr-8' : 'md:ml-8'
+                    }`}>
+                      <div className={`flex items-center gap-3 mb-3 ${!isLeft && 'md:flex-row-reverse'}`}>
+                        <div className="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0">
+                          <Icon className="w-5 h-5 text-white" />
+                        </div>
+                        <h3 className="text-lg md:text-xl font-bold text-white">{benefit.title}</h3>
+                      </div>
+                      <p className="text-sm md:text-base text-primary-foreground/80 leading-relaxed">
+                        {benefit.description}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {/* Desktop: Empty space for alternating layout */}
+                  <div className="flex-1 hidden md:block"></div>
                 </div>
-                <div className="text-center">
-                  <p className="text-xl font-bold text-white mb-2">Your Success Starts Here</p>
-                  <p className="text-primary-foreground/80">Join 100+ innovative startups on Originn</p>
-                </div>
+              );
+            })}
+          </div>
+          
+          {/* End Point */}
+          <div className="flex justify-start md:justify-center mt-12 ml-8 md:ml-0 relative z-10">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-success to-success/80 flex items-center justify-center shadow-lg shadow-success/30 border-2 border-white/20">
+                <CheckCircle2 className="w-7 h-7 text-white" />
+              </div>
+              <div>
+                <p className="text-base md:text-lg font-bold text-white">Ready to Launch?</p>
+                <p className="text-sm text-primary-foreground/80">Join India's premier startup ecosystem</p>
               </div>
             </div>
           </div>
