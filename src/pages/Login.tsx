@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { Shield, TrendingUp, CheckCircle2, Rocket, Lock, ShoppingCart, BarChart3, Users, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { Shield, CheckCircle2, Rocket, Lock, ShoppingCart, BarChart3, Eye, EyeOff } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -13,6 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
+// Benefits data remains the same
 const benefits = [
   {
     icon: Shield,
@@ -41,7 +42,7 @@ const benefits = [
   }
 ];
 
-const ORIGINN_MAIN_PAGE_URL = "https://originn-main-website.vercel.app/";
+// Constants for API endpoints
 const BACKEND_URL = "https://firstfound-platform-backend.vercel.app/startup/login";
 
 const Login = () => {
@@ -55,7 +56,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  // Auth state stored in memory
+  // Auth state stored in memory (used momentarily)
   const [authData, setAuthData] = useState({
     token: "",
     isLoggedIn: false,
@@ -65,7 +66,10 @@ const Login = () => {
     currentUserEmail: ""
   });
 
-  // LOGIN HANDLER
+  /**
+   * Handles the login submission. On success, stores auth tokens and IDs in localStorage
+   * and redirects to the dashboard.
+   */
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
@@ -92,7 +96,7 @@ const Login = () => {
         return;
       }
 
-      // Store auth data in state
+      // 1. Store auth data in temporary state
       setAuthData({
         token: data.token,
         isLoggedIn: true,
@@ -102,17 +106,31 @@ const Login = () => {
         currentUserEmail: data.startup?.founderEmail || ""
       });
 
+      // 2. --- PERSISTENCE FIX: Store necessary data in localStorage ---
+      // This allows ProtectedLayout to work and subsequent API calls to be authenticated.
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("authToken", data.token);
+      localStorage.setItem("startupId", data.startup?.id || "");
+      localStorage.setItem("companyName", data.startup?.companyName || "");
+      localStorage.setItem("currentUserEmail", data.startup?.founderEmail || "");
+      // -----------------------------------------------------------
+
       setSuccess(true);
       
       // Small delay before navigation
       setTimeout(() => {
+        // Redirect to dashboard after successful login
         navigate("/dashboard");
       }, 1000);
+
     } catch (err) {
       console.error("Login Error:", err);
       setError("Something went wrong. Please try again later.");
     } finally {
-      setLoading(false);
+      // Note: setLoading(false) runs after navigation if successful, or immediately on error/catch
+      if (!success) {
+        setLoading(false);
+      }
     }
   };
 

@@ -10,7 +10,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import StartupProfileForm from "./pages/StartupProfileForm";
 import Preorder from "./pages/Preorder";
-import CampaignBuilder from "./pages/CampaignBuilder";
+import CampaignBuilder from "./pages/CampaignBuilder"; // Add this import
 import Layout from "./pages/Layout";
 import Header from "./pages/Header";
 
@@ -36,12 +36,7 @@ const App: React.FC = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Header />
-        {/* Elegant divider line after header */}
-        <div className="border-b-2 border-gradient-to-r from-transparent via-orange-500 to-transparent">
-          <div className="h-[2px] bg-gradient-to-r from-transparent via-orange-400 to-transparent opacity-75"></div>
-        </div>
-        
+      <Header /> 
         <Routes>
           {/* --- Public Routes --- */}
           <Route path="/" element={<Login />} />
@@ -52,7 +47,7 @@ const App: React.FC = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/profile" element={<StartupProfileForm />} />
             <Route path="/preorder" element={<Preorder />} />
-            <Route path="/campaign" element={<CampaignBuilder />} />
+            <Route path="/campaign" element={<CampaignBuilder />} /> {/* Add this route */}
           </Route>
 
           {/* Catch-all route */}
