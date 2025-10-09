@@ -313,12 +313,14 @@ const Login = () => {
             Join India's most promising startups on Originn today
           </p> */}
           <Button
-        // size="xl"
-        className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-8 h-12 text-lg"
-        onClick={() => navigate("/register")} // navigate to /register
-      >
-        Register Here
-      </Button>
+  className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-8 h-12 text-lg"
+  onClick={() => {
+    navigate("/register");
+    window.scrollTo(0, 0);
+  }}
+>
+  Register Here
+</Button>
 
         </div>
       </div>
