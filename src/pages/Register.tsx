@@ -203,10 +203,10 @@ const Register: React.FC = () => {
           <Card className="shadow-3xl border-border/50 backdrop-blur-sm bg-card/95">
             <CardHeader>
               <CardTitle className="text-5xl text-center">
-                Register Your Startup
+              Application Form
               </CardTitle>
               <CardDescription className="text-center">
-                Fill in the details below to join Originn
+              Complete the form below to apply for Originn
               </CardDescription>
             </CardHeader>
 
@@ -442,7 +442,7 @@ const Register: React.FC = () => {
                   type="submit"
                   className="w-full h-12 text-lg font-semibold bg-accent hover:bg-accent/90 text-white"
                 >
-                  Register Startup
+                  Submit Application
                 </Button>
               </form>
 
