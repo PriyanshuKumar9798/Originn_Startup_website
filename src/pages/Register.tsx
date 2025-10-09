@@ -2,11 +2,13 @@ import React, { useState, ChangeEvent, FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
 import {
   Shield,
   CheckCircle2,
   Rocket,
   Lock,
+  Upload,
   ShoppingCart,
   BarChart3,
   Sparkles,
@@ -49,7 +51,7 @@ interface FormData {
   password: string;
   confirmPassword: string;
   companyWebsite: string;
-  pitchDeckUrl: string;
+  pitchDeckFile?: File | null;
   instituteName: string;
   teamMembers: number;
   stage: string;
@@ -68,7 +70,7 @@ const Register: React.FC = () => {
     password: "",
     confirmPassword: "",
     companyWebsite: "",
-    pitchDeckUrl: "",
+    pitchDeckFile: null,
     instituteName: "",
     teamMembers: 0,
     stage: "idea",
@@ -117,7 +119,7 @@ const Register: React.FC = () => {
         password: "",
         confirmPassword: "",
         companyWebsite: "",
-        pitchDeckUrl: "",
+        pitchDeckFile: null,
         instituteName: "",
         teamMembers: 0,
         stage: "idea",
@@ -359,15 +361,26 @@ const Register: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="pitchDeckUrl">Pitch Deck URL</Label>
+                <Label htmlFor="pitchDeckFile">
+                  Upload Pitch Deck (PDF or PPT)
+                </Label>
+                <div className="flex items-center gap-3">
                   <Input
-                    id="pitchDeckUrl"
-                    name="pitchDeckUrl"
-                    value={formData.pitchDeckUrl}
+                    type="file"
+                    id="pitchDeckFile"
+                    name="pitchDeckFile"
                     onChange={handleChange}
-                    placeholder="https://pitchdeck.com/technova"
+                    accept=".pdf,.ppt,.pptx"
+                    className="flex-1"
                   />
+                  <Upload className="text-accent w-5 h-5" />
                 </div>
+                {formData.pitchDeckFile && (
+                  <p className="text-sm text-green-600 font-medium">
+                    File selected: {formData.pitchDeckFile.name}
+                  </p>
+                )}
+              </div>
 
                 {/* Institute + Team */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
