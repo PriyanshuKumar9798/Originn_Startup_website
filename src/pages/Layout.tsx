@@ -19,6 +19,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
 
   const handleLogout = () => {
+    localStorage.setItem("isLoggedIn", "false");
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("startupId");
+      localStorage.removeItem("companyName");
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("currentUserEmail");
     navigate("/");

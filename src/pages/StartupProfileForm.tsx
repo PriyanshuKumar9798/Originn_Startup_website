@@ -108,8 +108,9 @@ const StartupProfileForm = () => {
 
   useEffect(() => {
     const userEmail = localStorage.getItem("currentUserEmail");
+    const startupId=localStorage.getItem("startupId");
     if (userEmail) {
-      fetch(`${API_BASE}/featureProducts?user=${userEmail}`)
+      fetch(`${API_BASE}/featureProducts/${startupId}`)
         .then(res => res.json())
         .then(data => {
           if (data && data.length > 0) {
@@ -209,6 +210,7 @@ const StartupProfileForm = () => {
       founders: finalizedFounders,
       team: finalizedTeam,
       institute: formData.institute,
+      startupId:startupId
     };
 
     try {
