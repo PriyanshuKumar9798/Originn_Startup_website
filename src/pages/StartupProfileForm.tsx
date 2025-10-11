@@ -1,5 +1,5 @@
 import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
-import { Upload, X, Camera, CheckCircle, AlertCircle } from "lucide-react";
+import { Upload, X, Camera, CheckCircle, AlertCircle, Edit } from "lucide-react";
 
 interface Member {
   name: string;
@@ -11,7 +11,7 @@ interface Member {
 
 interface FormData {
   companyName: string;
-  registrationNo?: string; 
+  registrationNo?: string;
   website: string;
   category: string;
   customCategory: string;
@@ -22,7 +22,7 @@ interface FormData {
   description: string;
   logo: string | null;
   productDescription?: string;
-  shortDescription?: string; 
+  shortDescription?: string;
   coverPhoto: string | null;
   linkedin: string;
   instagram: string;
@@ -36,18 +36,21 @@ interface FormData {
   stageDescription?: string;
 }
 
+// NOTE: Using a placeholder ID type, assuming it's a string/number from the backend
+type StartupId = string | null;
+
 const API_BASE = "https://firstfound-platform-backend.vercel.app";
 
 // Dropdown options
 const categories = [
-  "Custom","AI & Deep Tech", "Healthcare & Life Sciences", "FinTech",
+  "Custom", "AI & Deep Tech", "Healthcare & Life Sciences", "FinTech",
   "SaaS & Enterprise Tech", "Consumer Tech", "Sustainability & Climate Tech",
-  "EdTech", "Media & Entertainment", "Logistics & Supply Chain", 
+  "EdTech", "Media & Entertainment", "Logistics & Supply Chain",
 ];
 
 const productTypes = ["Physical Product (Hardware)", "SaaS (Software as a Service)", "Digital Product", "Service"];
 const targetMarkets = ["B2C", "B2B", "D2C"];
-const stages = ["Custom","Idea Stage", "Prototype Stage", "Pre-Revenue Stage", "Early Revenue Stage", "Series A/B/C Stage",];
+const stages = ["Custom", "Idea Stage", "Prototype Stage", "Pre-Revenue Stage", "Early Revenue Stage", "Series A/B/C Stage",];
 
 // Institution list (as provided)
 const institutions = [
@@ -88,7 +91,6 @@ const StartupProfileForm = () => {
     instagram: "",
     twitter: "",
     stageDescription: "",
-    // Initialize members with the new customInstitution field
     founders: [{ name: "", designation: "", institution: "", customInstitution: "", photo: null }],
     team: [{ name: "", designation: "", institution: "", customInstitution: "", photo: null }],
     institute: {
@@ -99,6 +101,10 @@ const StartupProfileForm = () => {
 
   const [submitStatus, setSubmitStatus] = useState<'success' | 'error' | null>(null);
   const [loading, setLoading] = useState(false);
+  // NEW STATE: To store the ID of the saved startup
+  const [startupId, setStartupId] = useState<StartupId>(null);
+  // NEW STATE: To control whether the form is visible or the success message is shown
+  const [isEditing, setIsEditing] = useState(true);
 
   useEffect(() => {
     const userEmail = localStorage.getItem("currentUserEmail");
@@ -107,15 +113,23 @@ const StartupProfileForm = () => {
         .then(res => res.json())
         .then(data => {
           if (data && data.length > 0) {
+            const startupData = data[0];
+            // Set the ID from the fetched data
+            setStartupId(startupData._id || startupData.id || null);
+            // Hide the form initially if data is found, showing a 'view' state or prompt
+            if (startupData._id || startupData.id) {
+                setIsEditing(false);
+            }
+
             // Merge fetched data, ensuring default custom fields are present if not in fetched data
             setFormData(prev => ({
               ...prev,
-              ...data[0],
-              customCategory: data[0].customCategory || "",
-              customStage: data[0].customStage || "",
+              ...startupData,
+              customCategory: startupData.customCategory || "",
+              customStage: startupData.customStage || "",
               // Initialize customInstitution for each member if necessary
-              founders: data[0].founders ? data[0].founders.map((f: Member) => ({ ...f, customInstitution: f.customInstitution || "" })) : prev.founders,
-              team: data[0].team ? data[0].team.map((t: Member) => ({ ...t, customInstitution: t.customInstitution || "" })) : prev.team,
+              founders: startupData.founders ? startupData.founders.map((f: Member) => ({ ...f, customInstitution: f.customInstitution || "" })) : prev.founders,
+              team: startupData.team ? startupData.team.map((t: Member) => ({ ...t, customInstitution: t.customInstitution || "" })) : prev.team,
             }));
           }
         })
@@ -201,16 +215,29 @@ const StartupProfileForm = () => {
       const userEmail = localStorage.getItem("currentUserEmail");
       if (!userEmail) throw new Error("No logged-in user found");
 
-      const response = await fetch(`${API_BASE}/featureProducts`, {
-        method: "POST",
+      // Determine the API endpoint and method
+      const method = startupId ? "PUT" : "POST";
+      const url = startupId
+        ? `${API_BASE}/featureProducts/${startupId}`
+        : `${API_BASE}/featureProducts`;
+
+      const response = await fetch(url, {
+        method: method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...dataToSend, userEmail }), // Use dataToSend
+        // Ensure to include userEmail for POST/PUT if the backend uses it for identification
+        body: JSON.stringify({ ...dataToSend, userEmail }),
       });
 
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "Failed to save profile");
 
+      // Capture the ID if it's a new entry (POST)
+      if (!startupId) {
+          setStartupId(data._id || data.id || null);
+      }
+
       setSubmitStatus("success");
+      setIsEditing(false); // Hide form and show saved state
       window.scrollTo(0, 0);
       setTimeout(() => setSubmitStatus(null), 4000);
     } catch (error: any) {
@@ -221,6 +248,38 @@ const StartupProfileForm = () => {
     }
   };
 
+  // Handler for the new Edit button
+  const handleEditClick = () => {
+    setIsEditing(true);
+    setSubmitStatus(null); // Clear status when re-entering edit mode
+  };
+
+  // Conditionally render the "Saved" state or the Form
+  if (!isEditing) {
+    return (
+      <div className="max-w-5xl mx-auto bg-white shadow-2xl rounded-2xl overflow-hidden p-8 text-center">
+        <h2 className="text-3xl font-bold text-green-600 mb-4 flex items-center justify-center gap-2">
+            <CheckCircle size={32} /> Profile Saved Successfully!
+        </h2>
+        <p className="text-gray-600 mb-6">Your startup profile for **{formData.companyName}** has been saved and is ready. You can edit it anytime.</p>
+        <button
+            onClick={handleEditClick}
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-700 transition font-semibold flex items-center justify-center gap-2 mx-auto"
+        >
+            <Edit size={20} /> Edit Profile
+        </button>
+        {startupId && (
+            <p className="mt-4 text-sm text-gray-500">
+                {/* You can also view/edit at: <a href={`${API_BASE}/startup/${startupId}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline"> */}
+                    {/* {API_BASE}/startup/{startupId} */}
+                {/* </a> */}
+            </p>
+        )}
+      </div>
+    );
+  }
+
+  // --- START FORM RENDERING ---
   return (
     <div className="max-w-5xl mx-auto bg-white shadow-2xl rounded-2xl overflow-hidden">
       {/* Cover Photo and Logo Section */}
@@ -337,64 +396,64 @@ const StartupProfileForm = () => {
 
             {/* Stage */}
             <div>
-  <label className="block text-sm font-semibold text-gray-700 mb-2">Stage</label>
-  <select
-    name="stage"
-    value={formData.stage}
-    onChange={handleChange}
-    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
-  >
-    <option value="">Select Stage</option>
-    {stages.map(s => <option key={s} value={s}>{s}</option>)}
-  </select>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Stage</label>
+              <select
+                name="stage"
+                value={formData.stage}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select Stage</option>
+                {stages.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
 
-  {/* Show custom stage input only if "Custom" is selected */}
-  {formData.stage === "Custom" && (
-    <input
-      type="text"
-      name="customStage"
-      value={formData.customStage}
-      onChange={handleChange}
-      placeholder="Enter your custom stage"
-      className="mt-2 w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
-    />
-  )}
+              {/* Show custom stage input only if "Custom" is selected */}
+              {formData.stage === "Custom" && (
+                <input
+                  type="text"
+                  name="customStage"
+                  value={formData.customStage}
+                  onChange={handleChange}
+                  placeholder="Enter your custom stage"
+                  className="mt-2 w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              )}
 
-  {/* Stage description always visible */}
-  <textarea
-    name="stageDescription"
-    value={formData.stageDescription || ""}
-    onChange={e => setFormData(prev => ({ ...prev, stageDescription: e.target.value }))}
-    placeholder="Describe your stage"
-    rows={3}
-    className="mt-2 w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
-  />
-</div>
-<div className="md:col-span-2">
-  <label className="block text-sm font-semibold text-gray-700 mb-2">Product Description</label>
-  <textarea
-    name="productDescription"
-    value={formData.productDescription || ""}
-    onChange={handleChange}
-    placeholder="Describe your product in detail"
-    rows={4}
-    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
-  />
-</div>
+              {/* Stage description always visible */}
+              <textarea
+                name="stageDescription"
+                value={formData.stageDescription || ""}
+                onChange={e => setFormData(prev => ({ ...prev, stageDescription: e.target.value }))}
+                placeholder="Describe your stage"
+                rows={3}
+                className="mt-2 w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Product Description</label>
+              <textarea
+                name="productDescription"
+                value={formData.productDescription || ""}
+                onChange={handleChange}
+                placeholder="Describe your product in detail"
+                rows={4}
+                className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
 
-<div className="md:col-span-2">
-  <label className="block text-sm font-semibold text-gray-700 mb-2">
-    Short Description
-  </label>
-  <input
-    type="text"
-    name="shortDescription"
-    value={formData.shortDescription || ""}
-    onChange={handleChange}
-    placeholder="Enter a short summary of your startup (1–2 lines)"
-    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
-  />
-</div>
+            <div className="md:col-span-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Short Description
+              </label>
+              <input
+                type="text"
+                name="shortDescription"
+                value={formData.shortDescription || ""}
+                onChange={handleChange}
+                placeholder="Enter a short summary of your startup (1–2 lines)"
+                className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
 
 
 
@@ -408,48 +467,47 @@ const StartupProfileForm = () => {
           </div>
 
           {/* Institute Info */}
-{/* Institute Info */}
-<div className="md:col-span-2 space-y-4">
-  <label className="block text-sm font-semibold text-gray-700 mb-2">Institute</label>
-  
-  <select
-    value={formData.institute.name}
-    onChange={e => setFormData(prev => ({
-      ...prev,
-      institute: { ...prev.institute, name: e.target.value }
-    }))}
-    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
-  >
-    <option value="">Select Institute</option>
-    {institutions.map(inst => <option key={inst} value={inst}>{inst}</option>)}
-  </select>
+          <div className="md:col-span-2 space-y-4">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Institute</label>
 
-  {formData.institute.name === "Custom" && (
-    <input
-      type="text"
-      placeholder="Enter Custom Institute Name"
-      value={formData.institute.description} // Or a separate field like `customName` if needed
-      onChange={e => setFormData(prev => ({
-        ...prev,
-        institute: { ...prev.institute, description: e.target.value } // Or `customName`
-      }))}
-      className="mt-2 w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
-    />
-  )}
+            <select
+              value={formData.institute.name}
+              onChange={e => setFormData(prev => ({
+                ...prev,
+                institute: { ...prev.institute, name: e.target.value }
+              }))}
+              className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Select Institute</option>
+              {institutions.map(inst => <option key={inst} value={inst}>{inst}</option>)}
+            </select>
 
-  <label className="block text-sm font-semibold text-gray-700 mt-2">Institute Description</label>
-  <textarea
-    name="instituteDescription"
-    value={formData.institute.description}
-    onChange={e => setFormData(prev => ({
-      ...prev,
-      institute: { ...prev.institute, description: e.target.value }
-    }))}
-    placeholder="Write a brief description about your institute"
-    rows={3}
-    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
-  />
-</div>
+            {formData.institute.name === "Custom" && (
+              <input
+                type="text"
+                placeholder="Enter Custom Institute Name"
+                value={formData.institute.description} // Reusing description field for custom name temporarily
+                onChange={e => setFormData(prev => ({
+                  ...prev,
+                  institute: { ...prev.institute, description: e.target.value }
+                }))}
+                className="mt-2 w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+            )}
+
+            <label className="block text-sm font-semibold text-gray-700 mt-2">Institute Description</label>
+            <textarea
+              name="instituteDescription"
+              value={formData.institute.description}
+              onChange={e => setFormData(prev => ({
+                ...prev,
+                institute: { ...prev.institute, description: e.target.value }
+              }))}
+              placeholder="Write a brief description about your institute"
+              rows={3}
+              className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
 
         </section>
 
@@ -491,20 +549,20 @@ const StartupProfileForm = () => {
                   {/* Institution Select/Custom Input FIX */}
                   <div className="space-y-3">
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Institution</label>
-                    <select 
-                      value={person.institution} 
-                      onChange={e => handleDynamicChange(index, "institution", e.target.value, section)} 
+                    <select
+                      value={person.institution}
+                      onChange={e => handleDynamicChange(index, "institution", e.target.value, section)}
                       className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
                     >
                       <option value="">Select Institution</option>
                       {institutions.map(inst => <option key={inst} value={inst}>{inst}</option>)}
                     </select>
                     {person.institution === "Custom" && (
-                        <input 
-                          type="text" 
-                          placeholder="Enter Custom Institution Name" 
+                        <input
+                          type="text"
+                          placeholder="Enter Custom Institution Name"
                           value={person.customInstitution}
-                          onChange={e => handleDynamicChange(index, "customInstitution", e.target.value, section)} 
+                          onChange={e => handleDynamicChange(index, "customInstitution", e.target.value, section)}
                           className="w-full mt-2 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
                         />
                     )}
@@ -531,7 +589,7 @@ const StartupProfileForm = () => {
         ))}
 
         <button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-lg hover:from-green-600 hover:to-green-700 transition shadow-lg text-lg font-semibold">
-          {loading ? "Saving..." : "Save Startup Profile"}
+          {loading ? "Saving..." : (startupId ? "Update Startup Profile" : "Save Startup Profile")}
         </button>
       </form>
     </div>
