@@ -21,6 +21,7 @@ interface FormData {
   customStage: string;
   description: string;
   logo: string | null;
+  productDescription?: string;
   shortDescription?: string; 
   coverPhoto: string | null;
   linkedin: string;
@@ -81,6 +82,7 @@ const StartupProfileForm = () => {
     customStage: "",
     description: "",
     logo: null,
+    productDescription: "",
     coverPhoto: null,
     linkedin: "",
     instagram: "",
@@ -368,6 +370,18 @@ const StartupProfileForm = () => {
     className="mt-2 w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
   />
 </div>
+<div className="md:col-span-2">
+  <label className="block text-sm font-semibold text-gray-700 mb-2">Product Description</label>
+  <textarea
+    name="productDescription"
+    value={formData.productDescription || ""}
+    onChange={handleChange}
+    placeholder="Describe your product in detail"
+    rows={4}
+    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+  />
+</div>
+
 <div className="md:col-span-2">
   <label className="block text-sm font-semibold text-gray-700 mb-2">
     Short Description

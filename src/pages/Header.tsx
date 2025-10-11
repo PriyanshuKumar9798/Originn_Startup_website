@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 
-const ORIGINN_MAIN_PAGE_URL="https://originn-main-website.vercel.app/"
+const ORIGINN_MAIN_PAGE_URL="https://www.originn.co.in/"
 
 const Header = () => {
   const navigate = useNavigate();
