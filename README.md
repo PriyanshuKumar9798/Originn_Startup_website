@@ -1,74 +1,81 @@
-# Welcome to your Lovable project
+# Originn for Startup
 
-## Project info
+A modern web application built with Vite, TypeScript, and Tailwind CSS v4.1.
 
-**URL**: https://lovable.dev/projects/98275fac-f577-4e8c-b5bb-03ad477a4fa7
+## Features
 
-## How can I edit this code?
+- ⚡ **Vite** - Lightning fast build tool and development server
+- 🎨 **Tailwind CSS v4.1** - Utility-first CSS framework
+- 🔷 **TypeScript** - Type-safe JavaScript
+- 📱 **Responsive Design** - Mobile-first approach
+- 🚀 **Modern ES Modules** - Latest JavaScript features
 
-There are several ways of editing your application.
+## Getting Started
 
-**Use Lovable**
+### Prerequisites
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/98275fac-f577-4e8c-b5bb-03ad477a4fa7) and start prompting.
+- Node.js (version 16 or higher)
+- npm or yarn
 
-Changes made via Lovable will be committed automatically to this repo.
+### Installation
 
-**Use your preferred IDE**
+1. Install dependencies:
+```bash
+npm install
+```
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+2. Start the development server:
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+3. Open your browser and navigate to `http://localhost:5173`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Available Scripts
 
-**Use GitHub Codespaces**
+- `npm run dev` - Start the development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview the production build
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Project Structure
 
-## What technologies are used for this project?
+```
+Originnforstartup/
+├── public/
+│   └── vite.svg
+├── src/
+│   ├── main.ts
+│   └── style.css
+├── index.html
+├── package.json
+├── tsconfig.json
+├── tsconfig.node.json
+└── vite.config.ts
+```
 
-This project is built with:
+## Technologies Used
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- **Vite** - Build tool and development server
+- **Tailwind CSS v4.1** - CSS framework with new Vite plugin
+- **TypeScript** - Type-safe JavaScript
+- **ES Modules** - Modern JavaScript module system
 
-## How can I deploy this project?
+## Tailwind CSS Setup
 
-Simply open [Lovable](https://lovable.dev/projects/98275fac-f577-4e8c-b5bb-03ad477a4fa7) and click on Share -> Publish.
+This project uses Tailwind CSS v4.1 with the new Vite plugin. The setup includes:
 
-## Can I connect a custom domain to my Lovable project?
+1. **Vite Plugin**: `@tailwindcss/vite` for seamless integration
+2. **CSS Import**: `@import "tailwindcss"` in `src/style.css`
+3. **No Configuration**: Tailwind CSS v4.1 works out of the box
 
-Yes, you can!
+## Development
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+The project is set up with hot module replacement (HMR) for fast development. Any changes to your TypeScript or CSS files will be automatically reflected in the browser.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
-# Startup_Originn_t
+## Building for Production
+
+Run `npm run build` to create a production build. The built files will be in the `dist` directory.
+
+## License
+
+ISC
