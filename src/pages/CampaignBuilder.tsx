@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Info, DollarSign, Shield, Upload, Users, Save, Edit3, CheckCircle } from 'lucide-react'
 
 interface BasicInfo {

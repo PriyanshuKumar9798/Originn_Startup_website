@@ -1,4 +1,3 @@
-import React from "react";
 import ScrollStack, { ScrollStackItem } from "./scroll-stack";
 
 const DemoScrollStack = () => {

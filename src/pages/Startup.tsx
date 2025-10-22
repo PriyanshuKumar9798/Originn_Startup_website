@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Building, Globe, Users, UserPlus, Camera, Upload, Plus, X, Save, Edit3 } from 'lucide-react'
 
 interface Founder {

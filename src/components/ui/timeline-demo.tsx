@@ -1,4 +1,3 @@
-import React from "react";
 import { Timeline } from "./timeline";
 import { Zap, Shield, User, Rocket, DollarSign } from "lucide-react";
 
