@@ -1,4 +1,5 @@
 import { Button } from '../components/ui/Button'
+import { Link } from 'react-router-dom'
 
 export const Login = () => {
   return (
@@ -36,13 +37,13 @@ export const Login = () => {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label htmlFor="password" className="block text-sm font-medium text-slate-700">Password</label>
-                <a href="#" className="text-xs text-blue-600 hover:underline">Forgot password?</a>
+                <Link to="#" className="text-xs text-blue-600 hover:underline">Forgot password?</Link>
               </div>
               <input id="password" type="password" required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-200" />
             </div>
             <Button type="submit" variant="primary" size="md" className="mt-2 w-full">Sign In</Button>
           </form>
-          <div className="text-center text-sm text-slate-600 mt-6">Don't have an account? <a href="/register" className="text-blue-600 hover:underline font-medium">Register Your Startup</a></div>
+          <div className="text-center text-sm text-slate-600 mt-6">Don't have an account? <Link to="/register" className="text-blue-600 hover:underline font-medium">Register Your Startup</Link></div>
         </div>
       </div>
     </section>

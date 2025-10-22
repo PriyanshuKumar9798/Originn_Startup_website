@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight, Eye, EyeOff, Upload, Check } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { Button } from '../components/ui/Button'
 import { TimelineDemo } from '../components/ui/timeline-demo'
 import { Footer } from '../components/Footer'
@@ -50,6 +51,15 @@ export const Register = () => {
     e.preventDefault()
     console.log('Form submitted:', formData)
     // Handle form submission here
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && currentStep < 3) {
+      e.preventDefault()
+      if (isStepValid(currentStep)) {
+        handleNext()
+      }
+    }
   }
 
   const isStepValid = (step: number) => {
@@ -126,7 +136,7 @@ export const Register = () => {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} onKeyDown={handleKeyDown} className="space-y-4">
             {/* Step 1: Company Details */}
             {currentStep === 1 && (
               <div className="space-y-4">
@@ -405,7 +415,7 @@ export const Register = () => {
           </form>
 
           <div className="text-center text-sm text-slate-600 mt-4">
-            Already have an account? <a href="/" className="text-blue-600 hover:underline font-medium">Login</a>
+            Already have an account? <Link to="/login" className="text-blue-600 hover:underline font-medium">Login</Link>
           </div>
         </div>
       </div>
