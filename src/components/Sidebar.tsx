@@ -41,18 +41,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ selected, setSelected }) => {
         />
         <Option
           Icon={Building2}
-          title="Startup"
+          title="Startup Profile"
           selected={selected}
           setSelected={setSelected}
           open={open}
         />
-        <Option
-          Icon={User}
-          title="Profile"
-          selected={selected}
-          setSelected={setSelected}
-          open={open}
-        />
+   
         <Option
           Icon={ShoppingBag}
           title="Pre-order"

@@ -91,7 +91,7 @@ export const DashboardPage = () => {
             </div>
           </div>
         )
-      case "Startup":
+      case "Startup Profile":
         return <Startup />
       case "Profile":
         return <Profile />

@@ -3,7 +3,6 @@ import { ChevronLeft, ChevronRight, Eye, EyeOff, Upload, Check } from 'lucide-re
 import { Link } from 'react-router-dom'
 import { Button } from '../components/ui/Button'
 import { TimelineDemo } from '../components/ui/timeline-demo'
-import { Footer } from '../components/Footer'
 
 export const Register = () => {
   const [currentStep, setCurrentStep] = useState(1)
@@ -425,9 +424,6 @@ export const Register = () => {
     <div className="w-full">
       <TimelineDemo />
     </div>
-    
-    {/* Footer */}
-    <Footer />
     </div>
   )
 }

@@ -43,7 +43,10 @@ export const Login = () => {
             </div>
             <Button type="submit" variant="primary" size="md" className="mt-2 w-full">Sign In</Button>
           </form>
-          <div className="text-center text-sm text-slate-600 mt-6">Don't have an account? <Link to="/register" className="text-blue-600 hover:underline font-medium">Register Your Startup</Link></div>
+          <div className="text-center text-sm text-slate-600 mt-6 mb-4">Don't have an account?</div>
+          <Button asChild variant="secondary" size="md" className="w-full">
+            <Link to="/register">Register Your Startup</Link>
+          </Button>
         </div>
       </div>
     </section>

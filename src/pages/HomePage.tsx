@@ -1,7 +1,6 @@
 import { Login } from './Login'
 import DisappearingFeatures from '../components/DisappearingFeatures'
 import AboutOriginn from '../components/AboutOriginn'
-import { Footer } from '../components/Footer'
 
 export const HomePage = () => {
   return (
@@ -9,7 +8,6 @@ export const HomePage = () => {
       <Login />
       <DisappearingFeatures />
       <AboutOriginn />
-      <Footer />
     </div>
   )
 }

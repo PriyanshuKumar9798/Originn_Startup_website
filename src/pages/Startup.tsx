@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Building, Globe, Users, UserPlus, Camera, Upload, Plus, X, Save, Edit3 } from 'lucide-react'
+import { Building, Globe, Users, UserPlus, Camera, Upload, Plus, X, Save, Edit3, Eye, ArrowLeft, Share2, CheckCircle, Linkedin, Twitter, Facebook, Bookmark, Building2, TrendingUp, GraduationCap, Package } from 'lucide-react'
 
 interface Founder {
   id: string
@@ -43,6 +43,7 @@ export const Startup = () => {
   const [activeTab, setActiveTab] = useState('company')
   const [hasChanges, setHasChanges] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
+  const [previewActiveTab, setPreviewActiveTab] = useState<'about' | 'behind' | 'team' | 'collaborate' | 'jobs'>('about')
 
   // Company Information State
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo>({
@@ -115,7 +116,8 @@ export const Startup = () => {
     { id: 'company', label: 'Company Info', icon: Building },
     { id: 'social', label: 'Social Media', icon: Globe },
     { id: 'founders', label: 'Founders', icon: Users },
-    { id: 'team', label: 'Team', icon: UserPlus }
+    { id: 'team', label: 'Team', icon: UserPlus },
+    { id: 'preview', label: 'Preview', icon: Eye }
   ]
 
   const handleInputChange = (field: string, value: string, section: string) => {
@@ -602,6 +604,307 @@ export const Startup = () => {
     </div>
   )
 
+  const renderPreview = () => {
+    return (
+      <div className="space-y-8">
+        <div className="text-center">
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">Startup Profile Preview</h3>
+          <p className="text-gray-600">This is how your startup profile will appear to potential investors and backers</p>
+        </div>
+
+        {/* Full Startup Detail Preview */}
+        <div className="min-h-screen bg-white">
+          {/* Banner Section */}
+          <section className="relative h-80 overflow-visible">
+            <img
+              src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=1200&h=400&fit=crop&crop=center"
+              alt={companyInfo.companyName}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent" />
+            
+            {/* Header Navigation */}
+            <div className="absolute top-0 left-0 right-0 z-10">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <div className="flex items-center justify-between">
+                  <div className="inline-flex items-center gap-2 bg-white/90 backdrop-blur-sm text-slate-700 hover:text-slate-900 transition-colors cursor-pointer px-4 py-2 rounded-full">
+                    <ArrowLeft className="h-4 w-4" />
+                    Back
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Overlaying Profile Card */}
+            <div className="absolute inset-x-0 -bottom-30 z-20">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="bg-white rounded-3xl shadow-lg border border-slate-200 p-5 sm:p-6 max-w-3xl relative">
+                  {/* Actions row */}
+                  <div className="absolute top-4 right-4 flex items-center gap-2">
+                    <button className="w-9 h-9 bg-white border border-slate-300 hover:bg-slate-50 transition-colors cursor-pointer rounded-full flex items-center justify-center shadow-sm">
+                      <Edit3 className="h-4 w-4 text-slate-600" />
+                    </button>
+                    <button className="w-9 h-9 bg-white border border-slate-300 hover:bg-slate-50 transition-colors cursor-pointer rounded-full flex items-center justify-center shadow-sm">
+                      <Bookmark className="h-4 w-4 text-slate-600" />
+                    </button>
+                    <button className="w-9 h-9 bg-white border border-slate-300 hover:bg-slate-50 transition-colors cursor-pointer rounded-full flex items-center justify-center shadow-sm">
+                      <Share2 className="h-4 w-4 text-slate-600" />
+                    </button>
+                  </div>
+                  
+                  <div className="flex items-start gap-4">
+                    {/* Profile Picture */}
+                    <div className="w-16 h-16 bg-slate-900 rounded-full flex items-center justify-center shrink-0">
+                      <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
+                        <Building2 className="h-4 w-4 text-slate-900" />
+                      </div>
+                    </div>
+
+                    {/* Profile Info */}
+                    <div className="flex-1">
+                      <h1 className="text-2xl font-extrabold text-slate-900 mb-1 tracking-tight">{companyInfo.companyName}</h1>
+                      <div className="flex items-center gap-2 text-slate-700 text-sm sm:text-[15px] mb-3">
+                        <span className="underline underline-offset-4">California, United States</span>
+                        <span className="text-slate-400">•</span>
+                        <span className="font-medium">{companyInfo.category}</span>
+                        <span className="text-slate-400">•</span>
+                        <span className="font-medium">{companyInfo.institute}</span>
+                      </div>
+                      <p className="text-slate-700 leading-relaxed mb-4 text-sm sm:text-base">{companyInfo.shortDescription}</p>
+
+                      {/* Social Links */}
+                      <div className="flex items-center gap-2.5">
+                        {socialMedia.linkedin && (
+                          <a href={socialMedia.linkedin} className="w-8 h-8 bg-white border border-slate-200 rounded-full flex items-center justify-center hover:bg-slate-50 transition-colors cursor-pointer shadow-sm">
+                            <Linkedin className="h-4 w-4 text-blue-600" />
+                          </a>
+                        )}
+                        {socialMedia.twitter && (
+                          <a href={socialMedia.twitter} className="w-8 h-8 bg-white border border-slate-200 rounded-full flex items-center justify-center hover:bg-slate-50 transition-colors cursor-pointer shadow-sm">
+                            <Twitter className="h-4 w-4 text-blue-600" />
+                          </a>
+                        )}
+                        {companyInfo.website && (
+                          <a href={companyInfo.website} className="w-8 h-8 bg-white border border-slate-200 rounded-full flex items-center justify-center hover:bg-slate-50 transition-colors cursor-pointer shadow-sm">
+                            <Globe className="h-4 w-4 text-slate-700" />
+                          </a>
+                        )}
+                        {socialMedia.instagram && (
+                          <a href={socialMedia.instagram} className="w-8 h-8 bg-white border border-slate-200 rounded-full flex items-center justify-center hover:bg-slate-50 transition-colors cursor-pointer shadow-sm">
+                            <Facebook className="h-4 w-4 text-blue-600" />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Main Content */}
+          <section className="pt-36 pb-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Left Column - Main Content */}
+                <div className="lg:col-span-2">
+                  {/* Navigation Tabs */}
+                  <div className="border-b border-slate-200 mb-8">
+                    <nav className="flex space-x-8">
+                      {[
+                        { id: 'about', label: 'About' },
+                        { id: 'behind', label: 'Behind the Scenes' },
+                        { id: 'team', label: 'Team' },
+                        { id: 'collaborate', label: 'Collaborate' },
+                        { id: 'jobs', label: 'Jobs' }
+                      ].map((tab) => (
+                        <button
+                          key={tab.id}
+                          onClick={() => setPreviewActiveTab(tab.id as any)}
+                          className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors cursor-pointer ${
+                            previewActiveTab === tab.id
+                              ? 'border-blue-500 text-blue-600'
+                              : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                          }`}
+                        >
+                          {tab.label}
+                        </button>
+                      ))}
+                    </nav>
+                  </div>
+
+                  {/* Tab Content */}
+                  {previewActiveTab === 'about' && (
+                    <div className="space-y-8">
+                      {/* Company Overview */}
+                      <div>
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center">
+                            <Building2 className="h-4 w-4 text-slate-600" />
+                          </div>
+                          <h2 className="text-xl font-bold text-slate-900">Company Overview</h2>
+                        </div>
+                        <p className="text-slate-700 leading-relaxed">
+                          {companyInfo.startupDescription}
+                        </p>
+                      </div>
+
+                      {/* Incubation & Background */}
+                      <div>
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center">
+                            <GraduationCap className="h-4 w-4 text-slate-600" />
+                          </div>
+                          <h2 className="text-xl font-bold text-slate-900">Incubation & Background</h2>
+                        </div>
+                        <p className="text-slate-700 leading-relaxed">
+                          {companyInfo.instituteDescription}
+                        </p>
+                      </div>
+
+                      {/* About the Product */}
+                      <div>
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center">
+                            <Package className="h-4 w-4 text-slate-600" />
+                          </div>
+                          <h2 className="text-xl font-bold text-slate-900">About the Product</h2>
+                        </div>
+                        
+                        {/* Current Development Stage */}
+                        <div className="mb-6">
+                          <h3 className="text-lg font-semibold text-slate-900 mb-3">Current Development Stage</h3>
+                          <div className="flex items-center gap-2 mb-3">
+                            <CheckCircle className="h-5 w-5 text-green-500" />
+                            <span className="font-medium text-slate-900">{companyInfo.stage}</span>
+                          </div>
+                          <p className="text-slate-700 leading-relaxed">
+                            {companyInfo.stageDescription}
+                          </p>
+                        </div>
+
+                        {/* Key Features */}
+                        <div className="mb-6">
+                          <h3 className="text-lg font-semibold text-slate-900 mb-3">Key Features</h3>
+                          <ul className="space-y-2">
+                            <li className="flex items-start gap-2">
+                              <div className="w-1.5 h-1.5 bg-slate-400 rounded-full mt-2 shrink-0" />
+                              <span className="text-slate-700">Advanced technology integration</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <div className="w-1.5 h-1.5 bg-slate-400 rounded-full mt-2 shrink-0" />
+                              <span className="text-slate-700">User-friendly interface design</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <div className="w-1.5 h-1.5 bg-slate-400 rounded-full mt-2 shrink-0" />
+                              <span className="text-slate-700">Scalable solution for growing businesses</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <div className="w-1.5 h-1.5 bg-slate-400 rounded-full mt-2 shrink-0" />
+                              <span className="text-slate-700">24/7 customer support</span>
+                            </li>
+                          </ul>
+                        </div>
+
+                        {/* Problem We Solve */}
+                        <div>
+                          <h3 className="text-lg font-semibold text-slate-900 mb-3">Problem We Solve</h3>
+                          <p className="text-slate-700 leading-relaxed">
+                            {companyInfo.productDescription}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      {/* Meet the Founders */}
+                      <div>
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center">
+                            <Users className="h-4 w-4 text-slate-600" />
+                          </div>
+                          <h2 className="text-xl font-bold text-slate-900">Meet the Founders</h2>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {founders.map((founder) => (
+                            <div key={founder.id} className="flex items-start gap-4">
+                              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center shrink-0">
+                                {founder.photo ? (
+                                  <img src={founder.photo} alt={founder.name} className="w-full h-full object-cover rounded-full" />
+                                ) : (
+                                  <Users className="w-8 h-8 text-gray-400" />
+                                )}
+                              </div>
+                              <div className="flex-1">
+                                <h3 className="font-semibold text-slate-900 mb-1">{founder.name}</h3>
+                                <p className="text-slate-600 text-sm mb-2">{founder.designation}</p>
+                                <p className="text-slate-700 text-sm leading-relaxed">{founder.institution}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Other tabs content */}
+                  {previewActiveTab !== 'about' && (
+                    <div className="text-center py-12">
+                      <p className="text-slate-500">Content for {previewActiveTab} tab coming soon...</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Right Column - Current Stage Card */}
+                <div className="lg:col-span-1">
+                  <div className="sticky top-24">
+                    <div className="bg-blue-900 text-white rounded-2xl p-6">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                          <TrendingUp className="h-4 w-4 text-white" />
+                        </div>
+                        <h3 className="font-bold text-white">Current Stage</h3>
+                      </div>
+                      
+                      <div className="bg-blue-700 text-blue-100 px-3 py-1 rounded-full text-sm font-medium mb-4 inline-block">
+                        {companyInfo.stage}
+                      </div>
+                      
+                      <p className="text-blue-100 text-sm leading-relaxed mb-6">
+                        {companyInfo.stageDescription}
+                      </p>
+                      
+                      <div className="space-y-3">
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-1.5 h-1.5 bg-blue-300 rounded-full" />
+                            <span className="text-blue-200 text-sm font-medium">Product Type</span>
+                          </div>
+                          <div className="bg-blue-800 text-white px-3 py-1 rounded text-sm font-medium">
+                            {companyInfo.productType}
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-1.5 h-1.5 bg-blue-300 rounded-full" />
+                            <span className="text-blue-200 text-sm font-medium">Target Market</span>
+                          </div>
+                          <div className="bg-blue-800 text-white px-3 py-1 rounded text-sm font-medium">
+                            {companyInfo.targetMarket}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -662,6 +965,7 @@ export const Startup = () => {
         {activeTab === 'social' && renderSocialMedia()}
         {activeTab === 'founders' && renderFounders()}
         {activeTab === 'team' && renderTeam()}
+        {activeTab === 'preview' && renderPreview()}
       </div>
     </div>
   )
