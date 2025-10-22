@@ -36,7 +36,7 @@ export const Navbar: React.FC<NavbarProps> = ({ isScrolled }) => {
               {/* <Link className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors cursor-pointer" to="/">Discover</Link>
               <Link className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors cursor-pointer" to="/">Pre Order</Link> */}
               <Link className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors cursor-pointer" to="/">About Us</Link>
-              {/* <Link className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors cursor-pointer" to="/dashboard">Dashboard</Link> */}
+              <Link className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors cursor-pointer" to="/dashboard">Dashboard</Link>
             </nav>
             
             <Button asChild variant="primary" size="md" showArrow>
