@@ -1,13 +1,18 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ChevronLeft, ChevronRight, Eye, EyeOff, Upload, Check } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Button } from '../components/ui/Button'
+import { applyForStartup } from '../services/startup'
 import { TimelineDemo } from '../components/ui/timeline-demo'
+import { fetchFilters, type FiltersResponse } from '../services/filters'
 
 export const Register = () => {
   const [currentStep, setCurrentStep] = useState(1)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [toast, setToast] = useState<{ visible: boolean; message: string }>(() => ({ visible: false, message: '' }))
+  const [filters, setFilters] = useState<FiltersResponse | null>(null)
   const [formData, setFormData] = useState({
     companyName: '',
     aboutStartup: '',
@@ -30,6 +35,14 @@ export const Register = () => {
     { id: 3, title: 'Additional Details', description: 'Team, stage, and other information' }
   ]
 
+  useEffect(() => {
+    const controller = new AbortController()
+    fetchFilters(controller.signal)
+      .then(setFilters)
+      .catch(() => {})
+    return () => controller.abort()
+  }, [])
+
   const handleInputChange = (field: string, value: string | number | File | null) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
@@ -46,18 +59,88 @@ export const Register = () => {
     }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Form submitted:', formData)
-    // Handle form submission here
+    if (currentStep < 3) {
+      if (isStepValid(currentStep)) {
+        handleNext()
+      }
+      return
+    }
+    if (isSubmitting) return
+    if (formData.password !== formData.confirmPassword) {
+      alert('Passwords do not match')
+      return
+    }
+
+    setIsSubmitting(true)
+    const controller = new AbortController()
+    try {
+      const allowedInstitutes = (filters?.institutes?.values || []).map(i => i.value)
+      const allowedStages = (filters?.stages?.values || []).map(s => s.value)
+
+      const chosenInstitute = formData.instituteName?.trim()
+      const instituteIsAllowed = !!chosenInstitute && allowedInstitutes.includes(chosenInstitute)
+      const finalStage = allowedStages.includes(mapStage(formData.stage)) ? mapStage(formData.stage) : mapStage(formData.stage)
+
+      const payload = {
+        company_name: formData.companyName || undefined,
+        about_startup: formData.aboutStartup || undefined,
+        founder_email: formData.founderEmail || undefined,
+        product_description: formData.productDescription || undefined,
+        founder_name: formData.founderName || undefined,
+        stage: finalStage,
+        company_website: formData.companyWebsite || undefined,
+        pitch_deck_url: undefined as string | undefined,
+        institute_name: instituteIsAllowed ? chosenInstitute : (chosenInstitute ? 'Other' : undefined),
+        institute_custom: !instituteIsAllowed && chosenInstitute ? chosenInstitute : undefined,
+        team_members: typeof formData.teamMembers === 'number' ? formData.teamMembers : undefined,
+        address: formData.address || undefined,
+        password: formData.password || undefined,
+        confirm_password: formData.confirmPassword || undefined,
+      }
+
+      await applyForStartup(payload, controller.signal)
+
+      setToast({ visible: true, message: 'Registration successful! Our team will reach out shortly.' })
+      setTimeout(() => setToast({ visible: false, message: '' }), 3000)
+
+      setFormData({
+        companyName: '',
+        aboutStartup: '',
+        productDescription: '',
+        founderName: '',
+        founderEmail: '',
+        password: '',
+        confirmPassword: '',
+        companyWebsite: '',
+        pitchDeck: null,
+        instituteName: '',
+        teamMembers: 0,
+        stage: 'Idea',
+        address: ''
+      })
+      setCurrentStep(1)
+    } catch (err: any) {
+      setToast({ visible: true, message: err?.message || 'Registration failed' })
+      setTimeout(() => setToast({ visible: false, message: '' }), 3000)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const mapStage = (stageValue: string) => {
+    switch (stageValue) {
+      case 'Idea':
+        return 'Idea Stage'
+      default:
+        return stageValue
+    }
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && currentStep < 3) {
       e.preventDefault()
-      if (isStepValid(currentStep)) {
-        handleNext()
-      }
     }
   }
 
@@ -135,10 +218,11 @@ export const Register = () => {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} onKeyDown={handleKeyDown} className="space-y-4">
-            {/* Step 1: Company Details */}
-            {currentStep === 1 && (
-              <div className="space-y-4">
+          {currentStep < 3 && (
+            <div className="space-y-4" onKeyDown={handleKeyDown}>
+              {/* Step 1: Company Details */}
+              {currentStep === 1 && (
+                <div className="space-y-4">
                 <div>
                   <label htmlFor="companyName" className="block text-sm font-medium text-slate-700 mb-2">
                     Company Name <span className="text-red-500">*</span>
@@ -183,12 +267,12 @@ export const Register = () => {
                     className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-transparent resize-none"
                   />
                 </div>
-              </div>
-            )}
+                </div>
+              )}
 
-            {/* Step 2: Founder Information */}
-            {currentStep === 2 && (
-              <div className="space-y-4">
+              {/* Step 2: Founder Information */}
+              {currentStep === 2 && (
+                <div className="space-y-4">
                 <div>
                   <label htmlFor="founderName" className="block text-sm font-medium text-slate-700 mb-2">
                     Founder Name <span className="text-red-500">*</span>
@@ -266,11 +350,41 @@ export const Register = () => {
                     </button>
                   </div>
                 </div>
-              </div>
-            )}
+                </div>
+              )}
 
-            {/* Step 3: Additional Details */}
-            {currentStep === 3 && (
+              {/* Navigation Buttons (steps 1-2) */}
+              <div className="flex justify-between pt-4 border-t border-slate-200">
+                <Button
+                  type="button"
+                  onClick={handlePrevious}
+                  disabled={currentStep === 1}
+                  variant="secondary"
+                  size="md"
+                  className={currentStep === 1 ? 'opacity-50 cursor-not-allowed' : ''}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  Previous
+                </Button>
+
+                <Button
+                  type="button"
+                  onClick={handleNext}
+                  disabled={!isStepValid(currentStep)}
+                  variant="primary"
+                  size="md"
+                  showArrow
+                >
+                  Next
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {currentStep === 3 && (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Step 3: Additional Details */}
               <div className="space-y-4">
                 <div>
                   <label htmlFor="companyWebsite" className="block text-sm font-medium text-slate-700 mb-2">
@@ -317,11 +431,18 @@ export const Register = () => {
                     <input
                       id="instituteName"
                       type="text"
+                      list="instituteOptions"
                       value={formData.instituteName}
                       onChange={(e) => handleInputChange('instituteName', e.target.value)}
-                      placeholder="NIT Delhi"
+                      placeholder="Start typing and select..."
                       className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-transparent"
                     />
+                    <datalist id="instituteOptions">
+                      {(filters?.institutes?.values || []).map(opt => (
+                        <option key={opt.value} value={opt.value} />
+                      ))}
+                      <option value="Other" />
+                    </datalist>
                   </div>
 
                   <div>
@@ -346,15 +467,22 @@ export const Register = () => {
                   <select
                     id="stage"
                     required
-                    value={formData.stage}
+                    value={mapStage(formData.stage)}
                     onChange={(e) => handleInputChange('stage', e.target.value)}
                     className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-transparent"
                   >
-                    <option value="Idea">Idea</option>
-                    <option value="MVP">MVP</option>
-                    <option value="Early Stage">Early Stage</option>
-                    <option value="Growth">Growth</option>
-                    <option value="Scale">Scale</option>
+                    {(filters?.stages?.values || []).map(s => (
+                      <option key={s.value} value={s.value}>{s.label}</option>
+                    ))}
+                    {!(filters?.stages?.values?.length) && (
+                      <>
+                        <option value="Idea Stage">Idea Stage</option>
+                        <option value="Prototype Stage">Prototype Stage</option>
+                        <option value="Pre-Revenue Stage">Pre-Revenue Stage</option>
+                        <option value="Early Revenue Stage">Early Revenue Stage</option>
+                        <option value="Series A/B/C Stage">Series A/B/C Stage</option>
+                      </>
+                    )}
                   </select>
                 </div>
 
@@ -372,46 +500,31 @@ export const Register = () => {
                   />
                 </div>
               </div>
-            )}
 
-            {/* Navigation Buttons */}
-            <div className="flex justify-between pt-4 border-t border-slate-200">
-              <Button
-                type="button"
-                onClick={handlePrevious}
-                disabled={currentStep === 1}
-                variant="secondary"
-                size="md"
-                className={currentStep === 1 ? 'opacity-50 cursor-not-allowed' : ''}
-              >
-                <ChevronLeft className="w-4 h-4" />
-                Previous
-              </Button>
-
-              {currentStep < 3 ? (
+              {/* Navigation Buttons (step 3) */}
+              <div className="flex justify-between pt-4 border-t border-slate-200">
                 <Button
                   type="button"
-                  onClick={handleNext}
-                  disabled={!isStepValid(currentStep)}
-                  variant="primary"
+                  onClick={handlePrevious}
+                  variant="secondary"
                   size="md"
-                  showArrow
                 >
-                  Next
-                  <ChevronRight className="w-4 h-4" />
+                  <ChevronLeft className="w-4 h-4" />
+                  Previous
                 </Button>
-              ) : (
+
                 <Button
                   type="submit"
                   variant="primary"
                   size="md"
+                  disabled={isSubmitting}
                   showArrow
                 >
-                  Submit Application
+                  {isSubmitting ? 'Submitting…' : 'Submit Application'}
                 </Button>
-              )}
-            </div>
-          </form>
+              </div>
+            </form>
+          )}
 
           <div className="text-center text-sm text-slate-600 mt-4">
             Already have an account? <Link to="/login" className="text-blue-600 hover:underline font-medium">Login</Link>
@@ -424,6 +537,15 @@ export const Register = () => {
     <div className="w-full">
       <TimelineDemo />
     </div>
+
+    {/* Toast */}
+    {toast.visible && (
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+        <div className="bg-slate-900 text-white px-4 py-2 rounded-lg shadow-lg border border-slate-800">
+          <span className="text-sm">{toast.message}</span>
+        </div>
+      </div>
+    )}
     </div>
   )
 }

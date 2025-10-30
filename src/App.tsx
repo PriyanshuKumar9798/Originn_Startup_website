@@ -6,6 +6,7 @@ import { HomePage } from './pages/HomePage'
 import { Login } from './pages/Login'
 import { Register } from './pages/Register'
 import { DashboardPage } from './pages/Dashboard'
+import { RequireAuth } from './components/RequireAuth'
 
 const App = () => {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -20,7 +21,7 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/dashboard" element={<RequireAuth><DashboardPage /></RequireAuth>} />
         <Route path="/*" element={
           <div className="min-h-screen bg-white text-slate-900">
             <Navbar isScrolled={isScrolled} />
