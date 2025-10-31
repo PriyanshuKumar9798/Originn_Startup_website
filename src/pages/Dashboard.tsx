@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Sidebar } from '../components/Sidebar'
 import { Header } from '../components/Header'
 import { Startup } from './Startup'
@@ -10,15 +11,41 @@ import { BTS } from './BTS'
 import { Collaborate } from './Collaborate'
 import { HelpSupport } from './HelpSupport'
 import { Settings } from './Settings'
+import { authStorage } from '../services/auth'
+import { getStartupById, type StartupDetailResponse } from '../services/startup'
 
 export const DashboardPage = () => {
   const [isDark, setIsDark] = useState(false)
   const [selected, setSelected] = useState("Dashboard")
+  const [startupName, setStartupName] = useState<string>('')
+  const [startupEmail, setStartupEmail] = useState<string>('')
+  const [startupDetail, setStartupDetail] = useState<StartupDetailResponse['data'] | null>(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
     // Ensure we start in light mode
     document.documentElement.classList.remove('dark')
+    const info = authStorage.getStartup<{ id?: number; company_name?: string; founder_email?: string }>()
+    if (info) {
+      setStartupName(info.company_name || '')
+      setStartupEmail(info.founder_email || '')
+      const id = info.id
+      if (id) {
+        const controller = new AbortController()
+        getStartupById(id, controller.signal)
+          .then(res => setStartupDetail(res.data))
+          .catch(() => {})
+        return () => controller.abort()
+      }
+    }
   }, [])
+
+  useEffect(() => {
+    if (selected === 'Logout') {
+      authStorage.clearAll()
+      navigate('/login', { replace: true })
+    }
+  }, [selected, navigate])
 
   const renderContent = () => {
     switch (selected) {
@@ -27,7 +54,10 @@ export const DashboardPage = () => {
           <div className="space-y-6">
             {/* Welcome Message */}
             <div className="text-center py-8">
-              <h2 className="text-3xl font-bold text-gray-800 mb-2">Welcome !!</h2>
+              <h2 className="text-3xl font-bold text-gray-800 mb-2">Welcome {startupName ? `, ${startupName}` : '!!'}</h2>
+              {startupEmail && (
+                <p className="text-gray-600">{startupEmail}</p>
+              )}
             </div>
 
             {/* Admin Notices */}
@@ -55,6 +85,51 @@ export const DashboardPage = () => {
                 </li>
               </ul>
             </div>
+
+            {/* Startup Showcase */}
+            {startupDetail && (
+              <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-800">{startupDetail.company_name}</h3>
+                    {startupDetail.short_description && (
+                      <p className="text-sm text-gray-600">{startupDetail.short_description}</p>
+                    )}
+                  </div>
+                  {startupDetail.company_website && (
+                    <a href={startupDetail.company_website} target="_blank" rel="noopener noreferrer" className="text-blue-600 text-sm hover:underline">
+                      Visit Website
+                    </a>
+                  )}
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
+                  {startupDetail.about_startup && (
+                    <div>
+                      <div className="text-gray-500 mb-1">About</div>
+                      <div>{startupDetail.about_startup}</div>
+                    </div>
+                  )}
+                  <div>
+                    <div className="text-gray-500 mb-1">Stage</div>
+                    <div>{startupDetail.stage || '—'}</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500 mb-1">Category</div>
+                    <div>{startupDetail.category || '—'}</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500 mb-1">Product Type</div>
+                    <div>{startupDetail.product_type || '—'}</div>
+                  </div>
+                  {startupDetail.address && (
+                    <div className="md:col-span-2">
+                      <div className="text-gray-500 mb-1">Address</div>
+                      <div>{startupDetail.address}</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Campaign Guidelines */}
             <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">

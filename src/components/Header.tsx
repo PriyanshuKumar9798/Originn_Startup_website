@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Bell, Moon, Sun, User } from "lucide-react";
+import { authStorage } from "../services/auth";
 
 interface HeaderProps {
   isDark: boolean;
@@ -7,11 +8,22 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ isDark, setIsDark }) => {
+  const [startupName, setStartupName] = useState<string>("");
+  const [startupEmail, setStartupEmail] = useState<string>("");
+
+  useEffect(() => {
+    const info = authStorage.getStartup<{ company_name?: string; founder_email?: string }>();
+    if (info) {
+      setStartupName(info.company_name || "");
+      setStartupEmail(info.founder_email || "");
+    }
+  }, []);
+
   return (
     <div className="flex items-center justify-between mb-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Startup Name</h1>
-        <p className="text-gray-600 mt-1">Good Morning by originn</p>
+        <h1 className="text-3xl font-bold text-gray-900">{startupName || "Dashboard"}</h1>
+        <p className="text-gray-600 mt-1">{startupEmail || "Welcome back"}</p>
       </div>
       <div className="flex items-center gap-4">
         <button className="relative p-2 rounded-lg bg-white border border-gray-200 text-gray-600 hover:text-gray-900 transition-colors cursor-pointer">

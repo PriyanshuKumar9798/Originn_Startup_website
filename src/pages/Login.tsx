@@ -17,8 +17,10 @@ export const Login = () => {
     const controller = new AbortController()
     try {
       const res = await login({ founder_email: email, password }, controller.signal)
-      const token = (res && (res.token as string)) || 'true'
+      const token = (res && res.access_token) || ''
+      if (!token) throw new Error('No access token returned')
       authStorage.setToken(token)
+      if (res.startup) authStorage.setStartup(res.startup)
       navigate('/dashboard', { replace: true })
     } catch (err: any) {
       setToast({ visible: true, message: err?.message || 'Login failed' })

@@ -1,5 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Building, Globe, Users, UserPlus, Camera, Upload, Plus, X, Save, Edit3, Eye, ArrowLeft, Share2, CheckCircle, Linkedin, Twitter, Facebook, Bookmark, Building2, TrendingUp, GraduationCap, Package } from 'lucide-react'
+import { authStorage } from '../services/auth'
+import { getStartupById } from '../services/startup'
+import { fetchFilters, type FiltersResponse } from '../services/filters'
 
 interface Founder {
   id: string
@@ -47,70 +50,81 @@ export const Startup = () => {
 
   // Company Information State
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo>({
-    companyName: 'TechFlow Solutions',
-    registrationNo: 'REG-2024-001',
-    website: 'https://techflow.com',
-    category: 'Technology',
-    productType: 'Software',
-    targetMarket: 'B2B',
-    stage: 'Growth',
-    stageDescription: 'We are in the growth stage with 50+ employees and expanding to new markets.',
-    productDescription: 'TechFlow is an AI-powered workflow automation platform that helps businesses streamline their operations and increase productivity by 40%.',
-    shortDescription: 'AI-powered workflow automation platform for modern businesses.',
-    startupDescription: 'Founded in 2022, TechFlow Solutions is revolutionizing how businesses manage their workflows through cutting-edge AI technology.',
-    institute: 'IIT Delhi',
-    instituteDescription: 'Incubated at IIT Delhi Innovation Hub, we have access to world-class research facilities and mentorship.'
+    companyName: '',
+    registrationNo: '',
+    website: '',
+    category: '',
+    productType: '',
+    targetMarket: '',
+    stage: '',
+    stageDescription: '',
+    productDescription: '',
+    shortDescription: '',
+    startupDescription: '',
+    institute: '',
+    instituteDescription: ''
   })
 
   // Social Media State
   const [socialMedia, setSocialMedia] = useState<SocialMedia>({
-    linkedin: 'https://linkedin.com/company/techflow',
-    instagram: 'https://instagram.com/techflow',
-    twitter: 'https://twitter.com/techflow'
+    linkedin: '',
+    instagram: '',
+    twitter: ''
   })
 
   // Founders State
   const [founders, setFounders] = useState<Founder[]>([
-    {
-      id: '1',
-      name: 'Sarah Johnson',
-      designation: 'CEO & Co-Founder',
-      institution: 'IIT Delhi',
-      photo: '/api/placeholder/150/150'
-    },
-    {
-      id: '2',
-      name: 'Michael Chen',
-      designation: 'CTO & Co-Founder',
-      institution: 'Stanford University',
-      photo: '/api/placeholder/150/150'
-    }
+    
   ])
 
   // Team State
   const [team, setTeam] = useState<TeamMember[]>([
-    {
-      id: '1',
-      name: 'Emily Rodriguez',
-      designation: 'Head of Product',
-      institution: 'MIT',
-      photo: '/api/placeholder/150/150'
-    },
-    {
-      id: '2',
-      name: 'David Kim',
-      designation: 'Lead Developer',
-      institution: 'IIT Bombay',
-      photo: '/api/placeholder/150/150'
-    },
-    {
-      id: '3',
-      name: 'Lisa Wang',
-      designation: 'Marketing Director',
-      institution: 'Harvard Business School',
-      photo: '/api/placeholder/150/150'
-    }
+    
   ])
+  const [filters, setFilters] = useState<FiltersResponse | null>(null)
+
+  useEffect(() => {
+    const info = authStorage.getStartup<{ id?: number }>()
+    if (!info?.id) return
+    const controller = new AbortController()
+    
+    getStartupById(info.id, controller.signal)
+      .then((res) => {
+        const d = res.data
+        setCompanyInfo({
+          companyName: d.company_name || '',
+          registrationNo: d.registration_no ? String(d.registration_no) : '',
+          website: d.company_website || '',
+          category: d.category || '',
+          productType: d.product_type || '',
+          targetMarket: d.target_market || '',
+          stage: d.stage || '',
+          stageDescription: typeof d.stage_description === 'string' ? d.stage_description : '',
+          productDescription: d.product_description || '',
+          shortDescription: d.short_description || '',
+          startupDescription: d.about_startup || '',
+          institute: d.institute_name || '',
+          instituteDescription: typeof d.institute_details === 'string' ? d.institute_details : '',
+        })
+        if (d.social_links && typeof d.social_links === 'object') {
+          const s: any = d.social_links
+          setSocialMedia({
+            linkedin: s.linkedin || '',
+            instagram: s.instagram || '',
+            twitter: s.twitter || '',
+          })
+        }
+      })
+      .catch(() => {})
+      .finally(() => {})
+    return () => controller.abort()
+  }, [])
+
+  useEffect(() => {
+    const controller = new AbortController()
+    fetchFilters(controller.signal).then(setFilters).catch(() => {})
+    return () => controller.abort()
+  }, [])
 
   const tabs = [
     { id: 'company', label: 'Company Info', icon: Building },
@@ -254,10 +268,12 @@ export const Startup = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">Select Category</option>
-              <option value="Technology">Technology</option>
-              <option value="Healthcare">Healthcare</option>
-              <option value="Finance">Finance</option>
-              <option value="Education">Education</option>
+              {(filters?.categories?.values || []).map(c => (
+                <option key={c.value} value={c.value}>{c.label}</option>
+              ))}
+              {companyInfo.category && !(filters?.categories?.values || []).some(c => c.value === companyInfo.category) && (
+                <option value={companyInfo.category}>{companyInfo.category}</option>
+              )}
             </select>
           </div>
         </div>
@@ -273,10 +289,12 @@ export const Startup = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">Select Product Type</option>
-              <option value="Software">Software</option>
-              <option value="Hardware">Hardware</option>
-              <option value="Service">Service</option>
-              <option value="Platform">Platform</option>
+              {(filters?.product_types?.values || []).map(p => (
+                <option key={p.value} value={p.value}>{p.label}</option>
+              ))}
+              {companyInfo.productType && !(filters?.product_types?.values || []).some(p => p.value === companyInfo.productType) && (
+                <option value={companyInfo.productType}>{companyInfo.productType}</option>
+              )}
             </select>
           </div>
           <div>
@@ -289,9 +307,12 @@ export const Startup = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">Select Target Market</option>
-              <option value="B2B">B2B</option>
-              <option value="B2C">B2C</option>
-              <option value="B2B2C">B2B2C</option>
+              {(filters?.target_markets?.values || []).map(t => (
+                <option key={t.value} value={t.value}>{t.label}</option>
+              ))}
+              {companyInfo.targetMarket && !(filters?.target_markets?.values || []).some(t => t.value === companyInfo.targetMarket) && (
+                <option value={companyInfo.targetMarket}>{companyInfo.targetMarket}</option>
+              )}
             </select>
           </div>
         </div>
@@ -306,10 +327,12 @@ export const Startup = () => {
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="">Select Stage</option>
-            <option value="Idea">Idea</option>
-            <option value="MVP">MVP</option>
-            <option value="Growth">Growth</option>
-            <option value="Scale">Scale</option>
+            {(filters?.stages?.values || []).map(s => (
+              <option key={s.value} value={s.value}>{s.label}</option>
+            ))}
+            {companyInfo.stage && !(filters?.stages?.values || []).some(s => s.value === companyInfo.stage) && (
+              <option value={companyInfo.stage}>{companyInfo.stage}</option>
+            )}
           </select>
         </div>
 

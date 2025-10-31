@@ -7,9 +7,15 @@ export type LoginPayload = {
 }
 
 export type LoginResponse = {
-  token?: string
   message?: string
-  [key: string]: unknown
+  access_token?: string
+  token_type?: string
+  startup?: {
+    id: number
+    company_name: string
+    founder_email: string
+    [key: string]: unknown
+  }
 }
 
 export const login = async (payload: LoginPayload, signal?: AbortSignal): Promise<LoginResponse> => {
@@ -24,6 +30,12 @@ export const authStorage = {
   setToken: (token: string) => localStorage.setItem('authToken', token),
   getToken: () => localStorage.getItem('authToken'),
   clear: () => localStorage.removeItem('authToken'),
+  setStartup: (startup: unknown) => localStorage.setItem('startupInfo', JSON.stringify(startup)),
+  getStartup: <T = any>(): T | null => {
+    try { const raw = localStorage.getItem('startupInfo'); return raw ? JSON.parse(raw) as T : null } catch { return null }
+  },
+  clearAll: () => { localStorage.removeItem('authToken'); localStorage.removeItem('startupInfo') },
 }
+
 
 
